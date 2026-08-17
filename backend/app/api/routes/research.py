@@ -72,7 +72,7 @@ async def upload_project_document(
             status = f"Error extracting document text: {str(e)}"
     elif ext in [".png", ".jpg", ".jpeg"]:
         from app.services.image_analyzer import analyze_scientific_image
-        img_res = await analyze_scientific_image(file_path, file.filename)
+        img_res = await analyze_scientific_image(file_path, file.filename, user_id=str(current_user["_id"]))
         extracted_text = img_res.get("full_summary", "Image analysis is currently unavailable with the configured model.")
         status = img_res.get("status", "Ready")
         image_analysis_data = img_res
