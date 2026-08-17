@@ -33,20 +33,40 @@ from app.api.routes.websocket import send_agent_update, send_progress, send_comp
 
 
 def extract_text_from_file(file_path: str) -> str:
+    if not os.path.exists(file_path):
+        return ""
     ext = os.path.splitext(file_path)[1].lower()
     text = ""
     if ext == ".pdf":
-        with open(file_path, "rb") as f:
-            reader = PyPDF2.PdfReader(f)
-            for page in reader.pages:
-                text += (page.extract_text() or "") + "\n"
+        try:
+            with open(file_path, "rb") as f:
+                reader = PyPDF2.PdfReader(f)
+                pages_text = []
+                for i, page in enumerate(reader.pages):
+                    try:
+                        extracted = page.extract_text()
+                        if extracted and extracted.strip():
+                            pages_text.append(f"--- Page {i+1} ---\n{extracted.strip()}")
+                    except Exception:
+                        continue
+                text = "\n\n".join(pages_text)
+        except Exception as e:
+            print(f"[PDF_EXTRACT_ERROR] {e}")
+            text = ""
         return text.strip()
     elif ext == ".docx":
-        doc = docx.Document(file_path)
-        return "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
-    elif ext == ".txt":
-        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
-            return f.read().strip()
+        try:
+            import docx
+            doc = docx.Document(file_path)
+            return "\n".join([p.text for p in doc.paragraphs if p.text.strip()])
+        except Exception:
+            return ""
+    elif ext in [".txt", ".md", ".csv", ".json"]:
+        try:
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                return f.read().strip()
+        except Exception:
+            return ""
     return ""
 
 

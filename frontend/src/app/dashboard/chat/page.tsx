@@ -558,6 +558,19 @@ function ResearchWorkspaceContent() {
     const currentAttached = attachedFile
     const currentProjectId = selectedProjectId || 'general'
 
+    // Helper: read file as text client-side for plain/txt files as fast fallback
+    const readFileAsText = (file: File): Promise<string> =>
+      new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onload = (e) => resolve((e.target?.result as string) || '')
+        reader.onerror = () => resolve('')
+        if (file.type === 'text/plain' || file.name.endsWith('.txt') || file.name.endsWith('.md')) {
+          reader.readAsText(file)
+        } else {
+          resolve('') // PDFs/DOCX handled server-side
+        }
+      })
+
     let fileTextToInject = ''
     let uploadedFileName = ''
 
@@ -576,7 +589,6 @@ function ResearchWorkspaceContent() {
         isWriting: true,
         parentPrompt: textToSend,
       }
-
       setMessages((prev) => [...prev, userMsg, placeholderAssistant])
       setInputValue('')
       handleRemoveAttachedFile()
@@ -595,17 +607,39 @@ function ResearchWorkspaceContent() {
     setShowScrollBottom(false)
     setTimeout(() => scrollToBottom(true), 50)
 
-    // If file was attached and project exists, upload and extract
-    if (currentAttached && selectedProjectId) {
+    // Upload file and extract text (works with or without a project)
+    if (currentAttached) {
       setThinkingStage(`Reading ${currentAttached.name}...`)
       try {
-        const uploadRes = await api.uploadDocument(selectedProjectId, currentAttached.file)
-        fileTextToInject = uploadRes?.extracted_text || ''
-        uploadedFileName = currentAttached.name
-        setUploadedFiles((prev) => [...prev, uploadRes])
-        toast.success(`✓ ${currentAttached.name} analyzed and added to workspace`)
-      } catch (uploadErr) {
+        if (selectedProjectId) {
+          // Upload to project workspace for persistent storage + server-side extraction
+          const uploadRes = await api.uploadDocument(selectedProjectId, currentAttached.file)
+          fileTextToInject = uploadRes?.extracted_text || ''
+          uploadedFileName = currentAttached.name
+          setUploadedFiles((prev) => [...prev, uploadRes])
+          toast.success(`✓ ${currentAttached.name} analyzed and added to workspace`)
+        } else {
+          // Fresh Mode: read text client-side (TXT/MD work; PDF/DOCX users get a graceful note)
+          const localText = await readFileAsText(currentAttached.file)
+          fileTextToInject = localText
+          uploadedFileName = currentAttached.name
+          if (!localText && (currentAttached.name.endsWith('.pdf') || currentAttached.name.endsWith('.docx'))) {
+            toast(`📎 ${currentAttached.name} attached. For full PDF analysis, load a research context first.`, { icon: '📄' })
+          } else if (localText) {
+            toast.success(`✓ ${currentAttached.name} read and included`)
+          }
+        }
+      } catch (uploadErr: any) {
         console.warn('File upload warning:', uploadErr)
+        // Try client-side fallback for txt
+        try {
+          const fallback = await readFileAsText(currentAttached.file)
+          if (fallback) {
+            fileTextToInject = fallback
+            uploadedFileName = currentAttached.name
+          }
+        } catch (_) {}
+        toast.error(`Could not fully process ${currentAttached.name}. Proceeding without document context.`)
       }
     }
 
@@ -616,7 +650,7 @@ function ResearchWorkspaceContent() {
     try {
       const res = await api.chat(
         currentProjectId,
-        textToSend || 'Please analyze and summarize the attached document in the context of this research.',
+        textToSend || (uploadedFileName ? `Please analyze and summarize the attached document "${uploadedFileName}" in detail.` : 'How can you help me?'),
         fileTextToInject || undefined,
         uploadedFileName || undefined
       )

@@ -184,11 +184,11 @@ async def chat_with_research(project_id: str, request: ChatRequest, current_user
 
     # Add uploaded documents / papers text
     if request.file_text:
-        context_blocks.append(f"--- NEWLY UPLOADED DOCUMENT ({request.file_name or 'Uploaded File'}) ---\n{request.file_text[:3500]}\n--- END UPLOADED DOCUMENT ---")
+        context_blocks.append(f"--- NEWLY UPLOADED DOCUMENT ({request.file_name or 'Uploaded File'}) ---\n{request.file_text[:8000]}\n--- END UPLOADED DOCUMENT ---")
     elif uploaded_files:
-        for uf in uploaded_files[-2:]:
-            if uf.get("extracted_text"):
-                context_blocks.append(f"--- ATTACHED WORKSPACE FILE ({uf.get('filename')}) ---\n{uf.get('extracted_text')[:2500]}\n--- END ATTACHED FILE ---")
+        for uf in uploaded_files[-3:]:
+            if uf.get("extracted_text") and uf.get("extracted_text") not in ["Unable to extract readable text from this PDF.", ""]:
+                context_blocks.append(f"--- ATTACHED WORKSPACE FILE ({uf.get('filename')}) ---\n{uf.get('extracted_text')[:4000]}\n--- END ATTACHED FILE ---")
 
     full_context = "\n\n".join(context_blocks) if context_blocks else "General Scientific Research Workspace."
 
@@ -201,7 +201,8 @@ async def chat_with_research(project_id: str, request: ChatRequest, current_user
         "2. When discussing research questions, ground your analysis in peer-reviewed scientific literature, empirical methodologies, and statistical principles.\n"
         "3. When referencing sources, provide exact clickable markdown links: DOIs [DOI: 10.xxxx/...](https://doi.org/10.xxxx/...), PubMed URLs (https://pubmed.ncbi.nlm.nih.gov/...), or arXiv links (https://arxiv.org/abs/...). NEVER hallucinate fake URLs.\n"
         "4. Format comparisons, statistical data (hazard ratios, p-values, 95% CI), and structured answers using clean GFM Markdown tables.\n"
-        "5. If a new paper or document is attached, meticulously analyze its methodology, sample size, and findings.\n\n"
+        "5. CRITICAL: If document content is provided under '--- NEWLY UPLOADED DOCUMENT ---' or '--- ATTACHED WORKSPACE FILE ---' in the research context, you MUST read it carefully and thoroughly. Extract key findings, methodology, sample sizes, limitations, and conclusions from the document. Reference specific passages from the document in your response.\n"
+        "6. If a document appears to contain clinical trial, systematic review, or meta-analysis data, proactively extract CONSORT-style metrics: N, intervention, control, endpoints, HR/OR/RR, 95% CI, p-values.\n\n"
         f"=== RESEARCH CONTEXT ===\n{full_context}\n=== END RESEARCH CONTEXT ==="
     )
 
