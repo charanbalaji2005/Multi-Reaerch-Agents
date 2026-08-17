@@ -35,7 +35,7 @@ export function Footer(): ReactNode {
             aria-hidden="true"
           />
           <div className="relative z-10 flex flex-col items-center text-center px-12 py-20 max-[850px]:px-6 max-[850px]:py-6 max-[850px]:pt-12">
-            <h2 className="text-5xl max-[850px]:text-3xl text-black font-medium tracking-tight max-w-2xl mb-12 max-[850px]:mb-8">
+            <h2 className="text-5xl max-[850px]:text-3xl text-pm-foreground font-medium tracking-tight max-w-2xl mb-12 max-[850px]:mb-8">
               Verify research, faster.
             </h2>
 

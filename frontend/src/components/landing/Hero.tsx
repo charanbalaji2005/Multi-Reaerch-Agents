@@ -150,15 +150,15 @@ export function Hero(): ReactNode {
           transition={{ staggerChildren: 0.15, delayChildren: 0.2 }}
         >
           <motion.div
-            className="inline-flex items-center gap-1.5 pl-4 pr-3 py-1.5 rounded-xl border border-black/10 bg-white text-black text-sm font-medium mb-6"
+            className="inline-flex items-center gap-1.5 pl-4 pr-3 py-1.5 rounded-xl border border-pm-border bg-pm-frame text-pm-foreground text-sm font-medium mb-6 shadow-sm"
             variants={fadeInUp}
             transition={{ duration: 0.8, ease }}
           >
             Multi-Agent Scientific Evidence & Citation Verification
-            <span className="text-pm-accent">+</span>
+            <span className="text-pm-accent font-bold">+</span>
           </motion.div>
 
-          <h1 className="text-7xl max-[850px]:text-5xl font-medium tracking-tight leading-[1.1] mb-6 text-black">
+          <h1 className="text-7xl max-[850px]:text-5xl font-medium tracking-tight leading-[1.1] mb-6 text-pm-foreground">
             <motion.span className="block font-bold tracking-tighter" variants={fadeInUp} transition={{ duration: 0.8, ease }}>
               ResearchGuard AI
             </motion.span>
@@ -167,7 +167,7 @@ export function Hero(): ReactNode {
             </motion.span>
           </h1>
 
-          <motion.p className="text-lg text-neutral-600 mb-8" variants={fadeInUp} transition={{ duration: 0.8, ease }}>
+          <motion.p className="text-lg text-pm-muted-foreground mb-8 max-w-2xl leading-relaxed" variants={fadeInUp} transition={{ duration: 0.8, ease }}>
             Eliminate hallucinated papers, ungrounded citations, and overconfident conclusions. 6 autonomous
             agents plan, search peer-reviewed literature, extract empirical evidence, independently verify
             citations, and stress-test every claim.
@@ -182,7 +182,7 @@ export function Hero(): ReactNode {
             whileTap={{ scale: 0.98 }}
           >
             <span className="absolute right-0 inset-y-0 w-[calc(100%-2rem)] max-[850px]:w-full rounded-xl bg-pm-accent" />
-            <span className="relative z-10 px-6 py-3 rounded-xl bg-black text-white font-medium max-[850px]:flex-1">
+            <span className="relative z-10 px-6 py-3 rounded-xl bg-pm-foreground text-pm-background font-semibold max-[850px]:flex-1 shadow-md">
               Launch research verification
             </span>
             <span className="relative -left-px z-10 w-11 h-11 rounded-xl flex items-center justify-center text-black">
