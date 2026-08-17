@@ -137,10 +137,12 @@ export function Hero(): ReactNode {
       onMouseLeave={handleMouseLeave}
     >
       <motion.div
-        className="absolute inset-0 min-[850px]:inset-2.5 bg-cover bg-center bg-no-repeat -z-10 brightness-125 rounded-br-[2rem] rounded-bl-[2rem] min-[850px]:scale-105"
+        className="absolute inset-0 min-[850px]:inset-2.5 bg-cover bg-center bg-no-repeat -z-10 rounded-br-[2.5rem] rounded-bl-[2.5rem] min-[850px]:scale-105 overflow-hidden"
         style={{ backgroundImage: 'url(/BG.jpg)', x, y }}
         aria-hidden="true"
-      />
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/10 to-pm-background dark:from-black/50 dark:via-black/20 dark:to-pm-background pointer-events-none" />
+      </motion.div>
 
       <div className="flex items-start justify-center px-6 pt-64 max-[850px]:pt-32">
         <motion.div
