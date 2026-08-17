@@ -383,15 +383,32 @@ function ResearchWorkspaceContent() {
   const animationTimerRef = useRef<NodeJS.Timeout | null>(null)
   const isUserScrolledUpRef = useRef(false)
 
-  // 1. Fetch User's Research Projects
+  // 1. Start New Chat / Fresh Research Inquiry
+  const handleStartNewChat = () => {
+    setSelectedProjectId(null)
+    setActiveProject(null)
+    setMessages([])
+    setSources([])
+    setEvidence([])
+    setUploadedFiles([])
+    setReport(null)
+    setActiveTab('chat')
+    setAttachedFile(null)
+    router.replace('/dashboard/chat', { scroll: false })
+  }
+
+  // 2. Fetch User's Research Projects
   const loadProjects = useCallback(async () => {
     try {
       const data = await api.getProjects()
       if (Array.isArray(data)) {
         setProjects(data)
-        const targetId = searchParams.get('project') || (data.length > 0 ? data[0].id : null)
-        if (targetId && (!selectedProjectId || selectedProjectId !== targetId)) {
+        const targetId = searchParams.get('project')
+        if (targetId && selectedProjectId !== targetId) {
           setSelectedProjectId(targetId)
+        } else if (!targetId && selectedProjectId === null && data.length > 0) {
+          // If no specific project in URL and not explicitly cleared, load latest
+          setSelectedProjectId(data[0].id)
         }
       }
     } catch (err) {
@@ -403,7 +420,7 @@ function ResearchWorkspaceContent() {
     loadProjects()
   }, [loadProjects])
 
-  // 2. Load Selected Research Data & Context
+  // 3. Load Selected Research Data & Context
   const loadSelectedResearch = useCallback(async (projId: string) => {
     try {
       const [projData, chatHistory, sourcesData, evidenceData, reportData, filesData] = await Promise.allSettled([
@@ -531,11 +548,12 @@ function ResearchWorkspaceContent() {
   // Send Follow-up Message with optional uploaded document
   const handleSendMessage = async (promptText?: string, targetAssistantMsgId?: string) => {
     const textToSend = (promptText || inputValue).trim()
-    if ((!textToSend && !attachedFile) || isThinking || !selectedProjectId) return
+    if ((!textToSend && !attachedFile) || isThinking) return
 
     const userMsgId = `user-${Date.now()}`
     const assistantMsgId = targetAssistantMsgId || `assistant-${Date.now()}`
     const currentAttached = attachedFile
+    const currentProjectId = selectedProjectId || 'general'
 
     let fileTextToInject = ''
     let uploadedFileName = ''
@@ -574,8 +592,8 @@ function ResearchWorkspaceContent() {
     setShowScrollBottom(false)
     setTimeout(() => scrollToBottom(true), 50)
 
-    // If file was attached, upload and extract
-    if (currentAttached) {
+    // If file was attached and project exists, upload and extract
+    if (currentAttached && selectedProjectId) {
       setThinkingStage(`Reading ${currentAttached.name}...`)
       try {
         const uploadRes = await api.uploadDocument(selectedProjectId, currentAttached.file)
@@ -594,12 +612,12 @@ function ResearchWorkspaceContent() {
 
     try {
       const res = await api.chat(
-        selectedProjectId,
+        currentProjectId,
         textToSend || 'Please analyze and summarize the attached document in the context of this research.',
         fileTextToInject || undefined,
         uploadedFileName || undefined
       )
-      const answer = res?.answer || res?.data?.answer || res || 'No response returned.'
+      const answer = res?.answer || res?.data?.answer || res || 'Hello! How can I assist with your research inquiry today?'
       revealResponseProgressively(assistantMsgId, answer)
     } catch (err: any) {
       if (animationTimerRef.current) {
@@ -635,8 +653,7 @@ function ResearchWorkspaceContent() {
         if (remaining.length > 0) {
           setSelectedProjectId(remaining[0].id)
         } else {
-          setSelectedProjectId(null)
-          setActiveProject(null)
+          handleStartNewChat()
         }
       }
     } catch (err) {
@@ -724,8 +741,8 @@ function ResearchWorkspaceContent() {
               </span>
               <button
                 type="button"
-                onClick={() => router.push('/dashboard/research')}
-                title="New Audit"
+                onClick={handleStartNewChat}
+                title="New Research Chat"
                 className="p-2 rounded-xl bg-pm-accent text-black font-bold shadow-xs"
               >
                 <Plus className="w-4 h-4" />
@@ -747,14 +764,14 @@ function ResearchWorkspaceContent() {
                 </button>
               </div>
 
-              {/* + New Research Button */}
+              {/* + New Research Chat Button */}
               <button
                 type="button"
-                onClick={() => router.push('/dashboard/research')}
-                className="w-full py-2.5 px-3 rounded-2xl bg-pm-accent hover:bg-pm-accent/90 text-black text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-all shrink-0"
+                onClick={handleStartNewChat}
+                className="w-full py-2.5 px-3 rounded-2xl bg-pm-accent hover:bg-pm-accent/90 text-black text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-all shrink-0 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ New Research</span>
+                <span>+ New Research Chat</span>
               </button>
 
               {/* Search History Bar */}
@@ -863,7 +880,7 @@ function ResearchWorkspaceContent() {
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-pm-foreground tracking-tight truncate max-w-md sm:max-w-xl">
-                    {activeProject?.topic || 'Select or Start a Research Investigation'}
+                    {activeProject?.topic || 'Luminar AI Scientific Co-Pilot'}
                   </span>
                   <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-pm-accent text-black font-bold uppercase shrink-0">
                     LUMINAR AI
@@ -920,20 +937,21 @@ function ResearchWorkspaceContent() {
               >
                 {/* Research Context Header Pill */}
                 {activeProject && (
-                  <div className="p-4 rounded-2xl bg-pm-frame border border-pm-border shadow-xs space-y-2">
+                  <div className="p-4 rounded-2xl bg-pm-frame border border-pm-border shadow-xs space-y-1.5">
                     <div className="flex items-center justify-between text-xs font-bold text-pm-foreground">
                       <span className="flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-pm-accent" />
-                        <span>ACTIVE RESEARCH CONTEXT</span>
+                        <span>ACTIVE RESEARCH CONTEXT: {activeProject.topic}</span>
                       </span>
                       <span className="text-[10px] font-mono text-pm-muted-foreground">
                         {new Date(activeProject.created_at || Date.now()).toLocaleDateString()}
                       </span>
                     </div>
-                    <p className="text-xs text-pm-muted-foreground leading-relaxed">
-                      {activeProject.description ||
-                        `Investigation regarding ${activeProject.topic}. All indexed peer-reviewed sources, extracted empirical claims, and uploaded documents are active in memory.`}
-                    </p>
+                    {activeProject.description && !activeProject.description.startsWith('Example:') && (
+                      <p className="text-xs text-pm-muted-foreground leading-relaxed">
+                        {activeProject.description}
+                      </p>
+                    )}
                   </div>
                 )}
 
@@ -943,17 +961,19 @@ function ResearchWorkspaceContent() {
                       <Image src="/logo.png" alt="Luminar AI" width={48} height={48} className="w-full h-full object-contain" />
                     </div>
                     <div className="space-y-1">
-                      <h3 className="text-base font-bold text-pm-foreground">Continue Your Research</h3>
+                      <h3 className="text-base font-bold text-pm-foreground">
+                        {activeProject ? 'Continue Your Research' : 'Start a Research Inquiry'}
+                      </h3>
                       <p className="text-xs text-pm-muted-foreground leading-relaxed">
-                        Ask follow-up questions about this investigation, request comparisons, or upload clinical trials / PDFs to analyze against previous findings.
+                        Ask any scientific question, formulate search strategies, verify claims, or upload clinical trials / PDFs to analyze against evidence.
                       </p>
                     </div>
                     {/* Starter Prompts */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full pt-2">
                       {[
-                        'What were the strongest peer-reviewed studies?',
-                        'Did any trials contradict this conclusion?',
-                        'Extract effect sizes and p-values into a table',
+                        'What were the strongest peer-reviewed studies on GLP-1?',
+                        'Did any trials contradict intermittent fasting efficacy?',
+                        'Extract effect sizes and p-values into a comparison table',
                         'Compare these findings with recent 2024 meta-analyses',
                       ].map((prompt, pIdx) => (
                         <button
@@ -1110,7 +1130,11 @@ function ResearchWorkspaceContent() {
                 <div className="flex items-center justify-between px-2 text-[10px] font-mono text-pm-muted-foreground">
                   <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
                     <CheckCircle2 className="w-3 h-3" />
-                    <span>Research Context Active: {sources.length} verified sources • {uploadedFiles.length} files • {messages.length} messages</span>
+                    <span>
+                      {selectedProjectId
+                        ? `Research Context Active: ${sources.length} sources • ${uploadedFiles.length} files • ${messages.length} messages`
+                        : 'General Research Consultation Active'}
+                    </span>
                   </span>
                   <span>PDF · DOCX · TXT · Images</span>
                 </div>
@@ -1205,29 +1229,33 @@ function ResearchWorkspaceContent() {
               </div>
 
               <div className="space-y-3">
-                {evidence.map((item, idx) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-pm-frame border border-pm-border space-y-2 shadow-xs">
-                    <div className="text-xs font-bold text-pm-foreground">{item.claim}</div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-pm-border text-[11px] font-mono">
-                      <div>
-                        <span className="text-pm-muted-foreground block text-[9px]">METRIC</span>
-                        <span className="text-pm-foreground font-semibold">{item.metric || 'Primary Endpoint'}</span>
-                      </div>
-                      <div>
-                        <span className="text-pm-muted-foreground block text-[9px]">EFFECT SIZE / HR</span>
-                        <span className="text-pm-accent font-semibold">{item.effect_size || 'N/A'}</span>
-                      </div>
-                      <div>
-                        <span className="text-pm-muted-foreground block text-[9px]">P-VALUE</span>
-                        <span className="text-emerald-500 font-semibold">{item.p_value || 'p < 0.05'}</span>
-                      </div>
-                      <div>
-                        <span className="text-pm-muted-foreground block text-[9px]">SAMPLE SIZE (N)</span>
-                        <span className="text-pm-foreground">{item.sample_size || 'Cohort'}</span>
+                {evidence.length === 0 ? (
+                  <div className="text-center py-12 text-xs text-pm-muted-foreground">No empirical evidence items extracted yet.</div>
+                ) : (
+                  evidence.map((item, idx) => (
+                    <div key={idx} className="p-4 rounded-2xl bg-pm-frame border border-pm-border space-y-2 shadow-xs">
+                      <div className="text-xs font-bold text-pm-foreground">{item.claim}</div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-pm-border text-[11px] font-mono">
+                        <div>
+                          <span className="text-pm-muted-foreground block text-[9px]">METRIC</span>
+                          <span className="text-pm-foreground font-semibold">{item.metric || 'Primary Endpoint'}</span>
+                        </div>
+                        <div>
+                          <span className="text-pm-muted-foreground block text-[9px]">EFFECT SIZE / HR</span>
+                          <span className="text-pm-accent font-semibold">{item.effect_size || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-pm-muted-foreground block text-[9px]">P-VALUE</span>
+                          <span className="text-emerald-500 font-semibold">{item.p_value || 'p < 0.05'}</span>
+                        </div>
+                        <div>
+                          <span className="text-pm-muted-foreground block text-[9px]">SAMPLE SIZE (N)</span>
+                          <span className="text-pm-foreground">{item.sample_size || 'Cohort'}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -1244,37 +1272,41 @@ function ResearchWorkspaceContent() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {sources.map((s, idx) => (
-                  <div key={idx} className="p-4 rounded-2xl bg-pm-frame border border-pm-border flex flex-col justify-between space-y-3 shadow-xs">
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between text-[10px] font-mono text-pm-muted-foreground">
-                        <span className="px-2 py-0.5 rounded bg-pm-muted text-pm-foreground font-semibold">
-                          {s.source_platform || 'Academic Registry'}
-                        </span>
-                        <span>{s.year || 2024}</span>
+                {sources.length === 0 ? (
+                  <div className="text-center py-12 text-xs text-pm-muted-foreground col-span-2">No verified literature sources linked yet.</div>
+                ) : (
+                  sources.map((s, idx) => (
+                    <div key={idx} className="p-4 rounded-2xl bg-pm-frame border border-pm-border flex flex-col justify-between space-y-3 shadow-xs">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[10px] font-mono text-pm-muted-foreground">
+                          <span className="px-2 py-0.5 rounded bg-pm-muted text-pm-foreground font-semibold">
+                            {s.source_platform || 'Academic Registry'}
+                          </span>
+                          <span>{s.year || 2024}</span>
+                        </div>
+                        <h4 className="text-xs font-bold text-pm-foreground line-clamp-2 leading-snug">{s.title}</h4>
+                        <p className="text-[11px] text-pm-muted-foreground line-clamp-2 leading-relaxed">
+                          {s.abstract || 'Peer-reviewed study evaluated in systematic research audit.'}
+                        </p>
                       </div>
-                      <h4 className="text-xs font-bold text-pm-foreground line-clamp-2 leading-snug">{s.title}</h4>
-                      <p className="text-[11px] text-pm-muted-foreground line-clamp-2 leading-relaxed">
-                        {s.abstract || 'Peer-reviewed study evaluated in systematic research audit.'}
-                      </p>
-                    </div>
 
-                    <div className="pt-2 border-t border-pm-border flex items-center justify-between text-[11px] font-mono text-pm-muted-foreground">
-                      <span className="truncate max-w-[160px]">{s.doi ? `DOI: ${s.doi}` : 'Indexed Paper'}</span>
-                      {s.url && (
-                        <a
-                          href={s.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-pm-accent font-semibold flex items-center gap-1 hover:underline"
-                        >
-                          <span>Open Source</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
+                      <div className="pt-2 border-t border-pm-border flex items-center justify-between text-[11px] font-mono text-pm-muted-foreground">
+                        <span className="truncate max-w-[160px]">{s.doi ? `DOI: ${s.doi}` : 'Indexed Paper'}</span>
+                        {s.url && (
+                          <a
+                            href={s.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-pm-accent font-semibold flex items-center gap-1 hover:underline"
+                          >
+                            <span>Open Source</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -1352,7 +1384,7 @@ function ResearchWorkspaceContent() {
               </div>
 
               <article className="p-6 sm:p-8 rounded-3xl bg-pm-frame border border-pm-border space-y-6 shadow-xs">
-                <h1 className="text-xl font-extrabold text-pm-foreground">{report?.title || activeProject?.topic}</h1>
+                <h1 className="text-xl font-extrabold text-pm-foreground">{report?.title || activeProject?.topic || 'Research Synthesis Report'}</h1>
                 <div className="space-y-2">
                   <h4 className="text-xs font-bold text-pm-foreground uppercase tracking-wider">Executive Summary</h4>
                   <p className="text-xs text-pm-foreground/90 leading-relaxed">

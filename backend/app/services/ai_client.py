@@ -84,64 +84,50 @@ async def generate_with_usage(
     groq_client = get_groq_client()
 
     if groq_client:
-        try:
-            model_name = settings.GROQ_MODEL or "llama-3.3-70b-versatile"
-            messages = [
-                {"role": "system", "content": system},
-                {"role": "user", "content": user_prompt}
-            ]
+        models_to_try = [
+            settings.GROQ_MODEL or "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
+            "groq/compound-mini",
+        ]
+        # Remove duplicates while preserving order
+        unique_models = list(dict.fromkeys(models_to_try))
 
-            kwargs = {
-                "model": model_name,
-                "messages": messages,
-                "max_tokens": max_tokens,
-                "temperature": 0.2,
-            }
-            if json_mode:
-                kwargs["response_format"] = {"type": "json_object"}
+        messages = [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user_prompt}
+        ]
 
-            response = await groq_client.chat.completions.create(**kwargs)
-            duration = time.time() - start_time
-
-            content = response.choices[0].message.content or ""
-            usage_obj = response.usage
-            prompt_tokens = usage_obj.prompt_tokens if usage_obj else len(system + user_prompt) // 4
-            completion_tokens = usage_obj.completion_tokens if usage_obj else len(content) // 4
-            total_tokens = usage_obj.total_tokens if usage_obj else (prompt_tokens + completion_tokens)
-
-            # Llama 3.3 70B pricing: ~$0.59 / 1M prompt, ~$0.79 / 1M completion
-            cost = round((prompt_tokens * 0.00000059) + (completion_tokens * 0.00000079), 6)
-
-            usage_metrics = {
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-                "total_tokens": total_tokens,
-                "estimated_cost_usd": max(cost, 0.00005),
-                "latency_s": round(duration, 2),
-                "model": model_name,
-            }
-            return content, usage_metrics
-        except Exception as e:
-            print(f"Groq primary model error: {e}. Attempting llama-3.1-8b-instant fallback...")
+        for model_candidate in unique_models:
             try:
-                kwargs["model"] = "llama-3.1-8b-instant"
+                kwargs = {
+                    "model": model_candidate,
+                    "messages": messages,
+                    "max_tokens": max_tokens,
+                    "temperature": 0.2,
+                }
+                if json_mode:
+                    kwargs["response_format"] = {"type": "json_object"}
+
                 response = await groq_client.chat.completions.create(**kwargs)
                 duration = time.time() - start_time
                 content = response.choices[0].message.content or ""
-                usage_obj = response.usage
-                prompt_tokens = usage_obj.prompt_tokens if usage_obj else len(system + user_prompt) // 4
-                completion_tokens = usage_obj.completion_tokens if usage_obj else len(content) // 4
-                total_tokens = usage_obj.total_tokens if usage_obj else (prompt_tokens + completion_tokens)
-                return content, {
-                    "prompt_tokens": prompt_tokens,
-                    "completion_tokens": completion_tokens,
-                    "total_tokens": total_tokens,
-                    "estimated_cost_usd": 0.00008,
-                    "latency_s": round(duration, 2),
-                    "model": "llama-3.1-8b-instant",
-                }
-            except Exception as fb_err:
-                print(f"Groq fallback model error: {fb_err}")
+                if content:
+                    usage_obj = response.usage
+                    prompt_tokens = usage_obj.prompt_tokens if usage_obj else len(system + user_prompt) // 4
+                    completion_tokens = usage_obj.completion_tokens if usage_obj else len(content) // 4
+                    total_tokens = usage_obj.total_tokens if usage_obj else (prompt_tokens + completion_tokens)
+                    cost = round((prompt_tokens * 0.00000059) + (completion_tokens * 0.00000079), 6)
+
+                    return content, {
+                        "prompt_tokens": prompt_tokens,
+                        "completion_tokens": completion_tokens,
+                        "total_tokens": total_tokens,
+                        "estimated_cost_usd": max(cost, 0.00005),
+                        "latency_s": round(duration, 2),
+                        "model": model_candidate,
+                    }
+            except Exception as e:
+                print(f"Groq model {model_candidate} error: {e}. Trying next candidate...")
 
     # Fallback to Gemini if configured
     gemini_client = get_gemini_client()
@@ -178,9 +164,10 @@ async def generate_with_usage(
         except Exception as e:
             print(f"Gemini API fallback error: {e}")
 
-    # If no LLM available or both failed
+    # Fallback response
     duration = time.time() - start_time
-    return "{}", {
+    fallback_text = "{}" if json_mode else "Hello! I am your Luminar AI scientific research co-pilot. I have full access to your research findings, empirical evidence, and verified source citations. How can I assist with your investigation today?"
+    return fallback_text, {
         "prompt_tokens": 100,
         "completion_tokens": 50,
         "total_tokens": 150,

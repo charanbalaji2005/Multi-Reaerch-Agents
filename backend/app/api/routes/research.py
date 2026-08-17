@@ -117,51 +117,55 @@ async def get_project_chat_history(project_id: str, current_user: dict = Depends
 async def chat_with_research(project_id: str, request: ChatRequest, current_user: dict = Depends(get_current_user)):
     """Unified conversational intelligence with full memory of previous research context & uploaded files."""
     db = get_db()
-    project = await db.research_projects.find_one({"_id": obj_id(project_id), "user_id": str(current_user["_id"])})
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+    project = None
+    if project_id and project_id not in ["new", "general", "null", "undefined"]:
+        try:
+            project = await db.research_projects.find_one({"_id": obj_id(project_id), "user_id": str(current_user["_id"])})
+        except Exception:
+            project = None
 
-    report = await db.reports.find_one({"project_id": project_id}) or {}
-    sources_doc = await db.literature_sources.find_one({"project_id": project_id}) or {}
-    evidence_doc = await db.evidence_items.find_one({"project_id": project_id}) or {}
-    critiques_doc = await db.critiques.find_one({"project_id": project_id}) or {}
+    report = {}
+    sources_list = []
+    evidence_list = []
+    uploaded_files = []
 
-    sources_list = sources_doc.get("sources", [])
-    evidence_list = evidence_doc.get("evidence", [])
-    critiques_list = critiques_doc.get("critiques", [])
-    uploaded_files = project.get("uploaded_files", [])
+    if project:
+        report = await db.reports.find_one({"project_id": project_id}) or {}
+        sources_doc = await db.literature_sources.find_one({"project_id": project_id}) or {}
+        evidence_doc = await db.evidence_items.find_one({"project_id": project_id}) or {}
+        sources_list = sources_doc.get("sources", [])
+        evidence_list = evidence_doc.get("evidence", [])
+        uploaded_files = project.get("uploaded_files", [])
 
     # Build comprehensive research context
     context_blocks = []
-    context_blocks.append(f"Research Topic: {project.get('topic')}")
-    if project.get('description'):
-        context_blocks.append(f"Description: {project.get('description')}")
+    if project:
+        context_blocks.append(f"Research Topic: {project.get('topic')}")
+        if project.get('description'):
+            context_blocks.append(f"Description: {project.get('description')}")
+        if report.get('title'):
+            context_blocks.append(f"Verified Report Title: {report.get('title')}")
+        if report.get('executive_summary'):
+            context_blocks.append(f"Executive Summary: {report.get('executive_summary')}")
+        if report.get('findings'):
+            findings_str = "\n".join([f"- {f.get('section')}: {f.get('content')}" for f in report.get('findings', [])[:6]])
+            context_blocks.append(f"Primary Findings:\n{findings_str}")
+        if report.get('critic_evaluation'):
+            context_blocks.append(f"Critic Audit & Limitations: {report.get('critic_evaluation')}")
 
-    if report.get('title'):
-        context_blocks.append(f"Verified Report Title: {report.get('title')}")
-    if report.get('executive_summary'):
-        context_blocks.append(f"Executive Summary: {report.get('executive_summary')}")
-    if report.get('findings'):
-        findings_str = "\n".join([f"- {f.get('section')}: {f.get('content')}" for f in report.get('findings', [])[:6]])
-        context_blocks.append(f"Primary Findings:\n{findings_str}")
-    if report.get('critic_evaluation'):
-        context_blocks.append(f"Critic Audit & Limitations: {report.get('critic_evaluation')}")
+        if sources_list:
+            sources_str = "\n".join([
+                f"[{idx+1}] {s.get('title')} ({s.get('year', 2024)}) - {s.get('source_platform', 'Academic')}. DOI: {s.get('doi', 'N/A')}. URL: {s.get('url', 'N/A')}"
+                for idx, s in enumerate(sources_list[:12])
+            ])
+            context_blocks.append(f"Verified Sources & Bibliography:\n{sources_str}")
 
-    # Add verified sources with real DOIs and URLs
-    if sources_list:
-        sources_str = "\n".join([
-            f"[{idx+1}] {s.get('title')} ({s.get('year', 2024)}) - {s.get('source_platform', 'Academic')}. DOI: {s.get('doi', 'N/A')}. URL: {s.get('url', 'N/A')}"
-            for idx, s in enumerate(sources_list[:12])
-        ])
-        context_blocks.append(f"Verified Sources & Bibliography:\n{sources_str}")
-
-    # Add quantitative evidence
-    if evidence_list:
-        ev_str = "\n".join([
-            f"- Claim: {e.get('claim')} | Metric: {e.get('metric', '')} | Effect: {e.get('effect_size', '')} | p-value: {e.get('p_value', '')} | Sample N: {e.get('sample_size', '')}"
-            for e in evidence_list[:8]
-        ])
-        context_blocks.append(f"Extracted Empirical Metrics:\n{ev_str}")
+        if evidence_list:
+            ev_str = "\n".join([
+                f"- Claim: {e.get('claim')} | Metric: {e.get('metric', '')} | Effect: {e.get('effect_size', '')} | p-value: {e.get('p_value', '')} | Sample N: {e.get('sample_size', '')}"
+                for e in evidence_list[:8]
+            ])
+            context_blocks.append(f"Extracted Empirical Metrics:\n{ev_str}")
 
     # Add uploaded documents / papers text
     if request.file_text:
@@ -171,19 +175,19 @@ async def chat_with_research(project_id: str, request: ChatRequest, current_user
             if uf.get("extracted_text"):
                 context_blocks.append(f"--- ATTACHED WORKSPACE FILE ({uf.get('filename')}) ---\n{uf.get('extracted_text')[:2500]}\n--- END ATTACHED FILE ---")
 
-    full_context = "\n\n".join(context_blocks)
+    full_context = "\n\n".join(context_blocks) if context_blocks else "General Scientific Research Workspace."
 
     system_prompt = (
-        "You are Luminar AI (ResearchGuard AI), an elite scientific research intelligence assistant. "
-        "You are conversing with a researcher about this specific investigation. "
-        "You have complete access to the previous research report, extracted statistical evidence, verified academic sources, and uploaded documents.\n\n"
+        "You are Luminar AI (ResearchGuard AI), an elite scientific research intelligence assistant and autonomous co-pilot. "
+        "You help researchers investigate complex scientific questions, formulate search strategies, audit literature, extract empirical metrics, "
+        "and compare newly uploaded trials/manuscripts against existing evidence.\n\n"
         "GUIDELINES:\n"
-        "1. Strictly answer scientific and research questions grounded in this evidence and academic literature.\n"
-        "2. If the user uploads a new paper, clinical trial, or text, meticulously compare its findings, sample sizes, and endpoints against the previous research context.\n"
-        "3. When referencing sources, provide exact clickable markdown links: DOIs [DOI: 10.xxxx/...](https://doi.org/10.xxxx/...), PubMed URLs (https://pubmed.ncbi.nlm.nih.gov/...), or arXiv links (https://arxiv.org/abs/...). NEVER hallucinate URLs.\n"
+        "1. Communicate warmly, intelligently, and clearly. Handle standard greetings and conversation naturally while offering concrete research assistance.\n"
+        "2. When discussing research questions, ground your analysis in peer-reviewed scientific literature, empirical methodologies, and statistical principles.\n"
+        "3. When referencing sources, provide exact clickable markdown links: DOIs [DOI: 10.xxxx/...](https://doi.org/10.xxxx/...), PubMed URLs (https://pubmed.ncbi.nlm.nih.gov/...), or arXiv links (https://arxiv.org/abs/...). NEVER hallucinate fake URLs.\n"
         "4. Format comparisons, statistical data (hazard ratios, p-values, 95% CI), and structured answers using clean GFM Markdown tables.\n"
-        "5. Distinguish between statistically supported findings, correlation vs causation limits, and adversarial critic warnings.\n\n"
-        f"=== RESEARCH WORKSPACE CONTEXT ===\n{full_context}\n=== END RESEARCH WORKSPACE CONTEXT ==="
+        "5. If a new paper or document is attached, meticulously analyze its methodology, sample size, and findings.\n\n"
+        f"=== RESEARCH CONTEXT ===\n{full_context}\n=== END RESEARCH CONTEXT ==="
     )
 
     answer = await generate(system=system_prompt, user_prompt=request.question, max_tokens=1800)
@@ -193,7 +197,7 @@ async def chat_with_research(project_id: str, request: ChatRequest, current_user
         await db.agent_chats.insert_many([
             {
                 "user_id": str(current_user["_id"]),
-                "project_id": project_id,
+                "project_id": project_id if project else "general",
                 "agent": "Luminar AI",
                 "role": "user",
                 "content": request.question,
@@ -201,7 +205,7 @@ async def chat_with_research(project_id: str, request: ChatRequest, current_user
             },
             {
                 "user_id": str(current_user["_id"]),
-                "project_id": project_id,
+                "project_id": project_id if project else "general",
                 "agent": "Luminar AI",
                 "role": "assistant",
                 "content": answer,
