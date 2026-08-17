@@ -1,7 +1,8 @@
 'use client'
+import { useState } from 'react'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   ShieldCheck,
   LayoutDashboard,
@@ -16,6 +17,7 @@ import {
   Plus,
   X,
   Sparkles,
+  ChevronDown,
 } from 'lucide-react'
 import { useAuthStore } from '@/lib/store'
 import toast from 'react-hot-toast'
@@ -29,6 +31,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuthStore()
+  const [isAgentsOpen, setIsAgentsOpen] = useState(true)
 
   const handleLogout = () => {
     logout()
@@ -122,51 +125,96 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </div>
         </div>
 
-        {/* 6 Specialized Scientific Agents Chat Section */}
+        {/* 6 Specialized Scientific Agents Collapsible Chat Section */}
         <div>
-          <div className="text-[11px] font-semibold text-pm-muted-foreground uppercase tracking-wider px-3 mb-2 flex items-center justify-between">
-            <span>AI Agents Chat</span>
-            <span className="text-[10px] font-mono text-pm-accent font-semibold">6 Online</span>
+          {/* Clickable Header Target with Accessibility & Animated Chevron */}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-expanded={isAgentsOpen}
+            aria-controls="ai-agents-list"
+            onClick={() => setIsAgentsOpen((prev) => !prev)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                setIsAgentsOpen((prev) => !prev)
+              }
+            }}
+            className="w-full text-[11px] font-semibold text-pm-muted-foreground uppercase tracking-wider px-3 mb-2 flex items-center justify-between cursor-pointer hover:text-pm-foreground select-none transition-colors rounded-lg py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-pm-ring/40"
+          >
+            <div className="flex items-center gap-2">
+              <span>AI AGENTS CHAT</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono text-emerald-500 font-semibold">6 ONLINE</span>
+              <motion.div
+                animate={{ rotate: isAgentsOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center justify-center text-pm-muted-foreground"
+              >
+                <ChevronDown className="w-3.5 h-3.5" />
+              </motion.div>
+            </div>
           </div>
-          <div className="bg-pm-muted/60 rounded-2xl border border-pm-border p-1.5 space-y-1">
-            {agentPills.map((agent) => {
-              const Icon = agent.icon
-              const isCurrentChat = pathname.startsWith('/dashboard/chat') && typeof window !== 'undefined' && window.location.search.includes(`agent=${agent.id}`)
 
-              return (
-                <button
-                  key={agent.id}
-                  type="button"
-                  onClick={() => {
-                    router.push(`/dashboard/chat?agent=${agent.id}`)
-                    setIsOpen(false)
-                  }}
-                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all text-left group ${
-                    isCurrentChat
-                      ? 'bg-pm-frame border border-pm-ring shadow-sm font-semibold'
-                      : 'hover:bg-pm-frame hover:shadow-xs'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div
-                      className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
-                      style={{ backgroundColor: `${agent.color}20`, color: agent.color }}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-[11px] font-semibold text-pm-foreground truncate">{agent.name}</div>
-                      <div className="text-[9px] text-pm-muted-foreground truncate">{agent.desc}</div>
-                    </div>
-                  </div>
-                  <span
-                    className="w-1.5 h-1.5 rounded-full shrink-0 ml-1"
-                    style={{ backgroundColor: agent.color, boxShadow: `0 0 6px ${agent.color}` }}
-                  />
-                </button>
-              )
-            })}
-          </div>
+          {/* Smooth Collapsible Agent List */}
+          <AnimatePresence initial={false}>
+            {isAgentsOpen && (
+              <motion.div
+                id="ai-agents-list"
+                key="ai-agents-list"
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                className="overflow-hidden"
+              >
+                <div className="bg-pm-muted/60 rounded-2xl border border-pm-border p-1.5 space-y-1">
+                  {agentPills.map((agent) => {
+                    const Icon = agent.icon
+                    const isCurrentChat =
+                      pathname.startsWith('/dashboard/chat') &&
+                      typeof window !== 'undefined' &&
+                      window.location.search.includes(`agent=${agent.id}`)
+
+                    return (
+                      <button
+                        key={agent.id}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          router.push(`/dashboard/chat?agent=${agent.id}`)
+                          setIsOpen(false)
+                        }}
+                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all text-left group ${
+                          isCurrentChat
+                            ? 'bg-pm-frame border border-pm-ring shadow-sm font-semibold'
+                            : 'hover:bg-pm-frame hover:shadow-xs'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div
+                            className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
+                            style={{ backgroundColor: `${agent.color}20`, color: agent.color }}
+                          >
+                            <Icon className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="min-w-0">
+                            <div className="text-[11px] font-semibold text-pm-foreground truncate">{agent.name}</div>
+                            <div className="text-[9px] text-pm-muted-foreground truncate">{agent.desc}</div>
+                          </div>
+                        </div>
+                        <span
+                          className="w-1.5 h-1.5 rounded-full shrink-0 ml-1"
+                          style={{ backgroundColor: agent.color, boxShadow: `0 0 6px ${agent.color}` }}
+                        />
+                      </button>
+                    )
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Quick Launch CTA */}
