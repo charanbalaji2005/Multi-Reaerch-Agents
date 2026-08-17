@@ -11,22 +11,19 @@ import {
   AlertTriangle,
   FileCheck2,
   Send,
-  Square,
   Copy,
   Check,
   RefreshCw,
   ArrowDown,
   Sparkles,
-  Paperclip,
   Info,
   Terminal,
   ExternalLink,
-  ChevronRight,
   Trash2,
   Activity,
-  Layers,
 } from 'lucide-react'
 import { api } from '@/lib/api'
+import LuminarLoadingScreen from '@/components/ui/LuminarLoadingScreen'
 
 interface AgentDef {
   id: string
@@ -1079,18 +1076,7 @@ function ChatContent() {
 
 export default function AgentChatPage() {
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen bg-pm-background flex items-center justify-center">
-          <div className="flex flex-col items-center gap-3">
-            <div className="w-8 h-8 rounded-full border-2 border-pm-accent border-t-transparent animate-spin" />
-            <span className="text-xs font-mono text-pm-muted-foreground uppercase">
-              Loading Research Command Center...
-            </span>
-          </div>
-        </div>
-      }
-    >
+    <Suspense fallback={<LuminarLoadingScreen message="Loading Research Command Center..." fullScreen={false} />}>
       <ChatContent />
     </Suspense>
   )

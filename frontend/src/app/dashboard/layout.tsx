@@ -6,6 +6,8 @@ import Sidebar from '@/components/layout/Sidebar'
 import { Menu, ShieldCheck } from 'lucide-react'
 import { ThemeSwitch } from '@/components/landing/ThemeSwitch'
 
+import LuminarLoadingScreen from '@/components/ui/LuminarLoadingScreen'
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, loadFromStorage, isLoading } = useAuthStore()
   const router = useRouter()
@@ -22,14 +24,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [user, isLoading, router])
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-pm-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 rounded-full border-2 border-pm-foreground animate-spin border-t-transparent" />
-          <p className="text-pm-muted-foreground text-xs font-mono tracking-widest uppercase">Initializing ResearchGuard...</p>
-        </div>
-      </div>
-    )
+    return <LuminarLoadingScreen message="Initializing research workspace..." />
   }
 
   if (!user) return null
