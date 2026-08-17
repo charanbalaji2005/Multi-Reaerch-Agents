@@ -133,3 +133,58 @@ class WSMessage(BaseModel):
     message: str
     data: Optional[Dict[str, Any]] = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+
+# ─── Normalized Scholarly Source Models ─────────────────────────
+class AccessType(str, Enum):
+    OPEN_ACCESS = "open_access"
+    FULL_TEXT_ANALYZED = "full_text_analyzed"
+    ABSTRACT_ONLY = "abstract_only"
+    METADATA_ONLY = "metadata_only"
+
+
+class SourcePlatform(str, Enum):
+    IEEE_XPLORE = "IEEE_XPLORE"
+    ACM_DIGITAL_LIBRARY = "ACM_DIGITAL_LIBRARY"
+    SEMANTIC_SCHOLAR = "SEMANTIC_SCHOLAR"
+    CROSSREF = "CROSSREF"
+    PUBMED = "PUBMED"
+    ARXIV = "ARXIV"
+    MENDELEY = "MENDELEY"
+    GOOGLE_SCHOLAR = "GOOGLE_SCHOLAR"
+    OTHER = "OTHER"
+
+
+class ResearchSource(BaseModel):
+    id: str = Field(default_factory=lambda: "")
+    source_id: Optional[str] = None
+    title: str
+    authors: List[str] = []
+    abstract: Optional[str] = ""
+    year: Optional[int] = None
+    doi: Optional[str] = None
+    url: Optional[str] = None
+    publisher: Optional[str] = None
+    journal: Optional[str] = None
+    conference: Optional[str] = None
+    source_platform: str = "OTHER"
+    metadata_provider: str = "OTHER"
+    source_type: str = "Academic Publication"
+    access_type: str = "abstract_only"
+    keywords: List[str] = []
+    citation_count: Optional[int] = None
+    quality_score: float = 0.85
+    relevance_score: float = 0.85
+    retrieved_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class ScholarlySearchAudit(BaseModel):
+    total_discovered: int = 0
+    unique_papers: int = 0
+    duplicates_merged: int = 0
+    full_text_sources: int = 0
+    abstract_only_sources: int = 0
+    metadata_only_sources: int = 0
+    provider_counts: Dict[str, int] = {}
+    queries_executed: List[str] = []
+

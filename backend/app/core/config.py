@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     GROQ_MODEL: str = "llama-3.3-70b-versatile"
     SEARCHAPI_KEY: str = ""
 
+    # Scholarly Provider API Keys & OAuth (Optional)
+    IEEE_XPLORE_API_KEY: str = ""
+    MENDELEY_CLIENT_ID: str = ""
+    MENDELEY_CLIENT_SECRET: str = ""
+    MENDELEY_REDIRECT_URI: str = "http://localhost:8000/api/auth/mendeley/callback"
+
     REDIS_URL: str = "redis://localhost:6379"
 
     ALLOWED_ORIGINS: Union[List[str], str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
