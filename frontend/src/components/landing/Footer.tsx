@@ -36,26 +36,26 @@ export function Footer(): ReactNode {
             aria-hidden="true"
           />
           <div className="relative z-10 flex flex-col items-center text-center px-12 py-20 max-[850px]:px-6 max-[850px]:py-6 max-[850px]:pt-12">
-            <h2 className="text-5xl max-[850px]:text-3xl text-pm-foreground font-medium tracking-tight max-w-2xl mb-12 max-[850px]:mb-8">
+            <h2 className="text-5xl max-[850px]:text-3xl text-neutral-900 font-bold tracking-tight max-w-2xl mb-12 max-[850px]:mb-8">
               Verify research, faster.
             </h2>
 
             <form
               onSubmit={(e) => e.preventDefault()}
-              className="flex items-center w-full max-w-md bg-pm-background rounded-xl p-1.5 shadow-lg max-[850px]:flex-col max-[850px]:p-3 max-[850px]:gap-3 max-[850px]:max-w-none"
+              className="flex items-center w-full max-w-md bg-white/95 backdrop-blur-md rounded-xl p-1.5 shadow-xl border border-neutral-200/80 max-[850px]:flex-col max-[850px]:p-3 max-[850px]:gap-3 max-[850px]:max-w-none"
             >
               <div className="flex items-center flex-1 w-full">
-                <Mail className="w-5 h-5 text-pm-muted-foreground ml-3 flex-none max-[850px]:ml-1" aria-hidden="true" />
+                <Mail className="w-5 h-5 text-neutral-500 ml-3 flex-none max-[850px]:ml-1" aria-hidden="true" />
                 <input
                   type="email"
                   placeholder="Enter your email"
                   aria-label="Email address"
-                  className="flex-1 px-3 py-2.5 text-sm bg-transparent text-pm-foreground placeholder:text-pm-muted-foreground focus:outline-none"
+                  className="flex-1 px-3 py-2.5 text-sm bg-transparent text-neutral-900 placeholder:text-neutral-500 focus:outline-none font-medium"
                 />
               </div>
               <button
                 type="submit"
-                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-pm-foreground hover:opacity-90 text-pm-background rounded-lg text-sm font-medium transition-opacity whitespace-nowrap max-[850px]:w-full max-[850px]:py-3"
+                className="flex items-center justify-center gap-2 px-5 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg text-sm font-semibold transition-colors whitespace-nowrap max-[850px]:w-full max-[850px]:py-3 shadow-sm"
               >
                 Get updates
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
