@@ -46,8 +46,50 @@
   --pm-card-primary: #a8d946;
   --pm-card-secondary: #2a3a1a;
   --pm-card-foreground: #fafafa;
-  --pm-card-foreground-muted: #d4d4d4;
   --pm-phone-screen: #f5f5f5;
+}
+
+/* Butter Smooth Scrolling & Touch Physics */
+html {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-top: 5rem;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Silky Smooth Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, 0.2);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 120, 0.4);
+}
+
+/* GPU Hardware Acceleration for zero-jank swiping */
+.smooth-gpu {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* Touch & Swipe optimization */
+* {
+  touch-action: pan-y pinch-zoom;
 }
 
 /* Palletman "site frame" chrome — thin border + corner marks around the viewport */
