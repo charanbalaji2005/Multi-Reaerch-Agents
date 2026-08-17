@@ -137,10 +137,13 @@ export function Hero(): ReactNode {
       onMouseLeave={handleMouseLeave}
     >
       <motion.div
-        className="absolute inset-0 min-[850px]:inset-2.5 bg-cover bg-center bg-no-repeat z-0 rounded-br-[2rem] rounded-bl-[2rem] min-[850px]:scale-105 pointer-events-none"
+        className="absolute inset-0 min-[850px]:inset-2.5 bg-cover bg-center bg-no-repeat z-0 rounded-br-[2rem] rounded-bl-[2rem] min-[850px]:scale-105 pointer-events-none transition-all duration-300"
         style={{ backgroundImage: 'url(/BG.jpg)', x, y }}
         aria-hidden="true"
-      />
+      >
+        {/* Dark mode contrast enhancement overlay */}
+        <div className="absolute inset-0 hidden dark:block bg-gradient-to-b from-black/70 via-black/40 to-[#141414] rounded-br-[2rem] rounded-bl-[2rem]" />
+      </motion.div>
 
       <div className="relative z-10 flex items-start justify-center px-6 pt-64 max-[850px]:pt-32">
         <motion.div
@@ -150,7 +153,7 @@ export function Hero(): ReactNode {
           transition={{ staggerChildren: 0.15, delayChildren: 0.2 }}
         >
           <motion.div
-            className="inline-flex items-center gap-1.5 pl-4 pr-3 py-1.5 rounded-xl border border-pm-border bg-pm-frame text-pm-foreground text-sm font-medium mb-6 shadow-sm"
+            className="inline-flex items-center gap-1.5 pl-4 pr-3 py-1.5 rounded-xl border border-pm-border bg-pm-frame dark:bg-neutral-900/90 dark:border-neutral-700 text-pm-foreground dark:text-neutral-100 text-sm font-medium mb-6 shadow-sm dark:shadow-black/50"
             variants={fadeInUp}
             transition={{ duration: 0.8, ease }}
           >
@@ -158,7 +161,7 @@ export function Hero(): ReactNode {
             <span className="text-pm-accent font-bold">+</span>
           </motion.div>
 
-          <h1 className="text-7xl max-[850px]:text-5xl font-medium tracking-tight leading-[1.1] mb-6 text-pm-foreground">
+          <h1 className="text-7xl max-[850px]:text-5xl font-medium tracking-tight leading-[1.1] mb-6 text-pm-foreground dark:text-white dark:drop-shadow-[0_2px_16px_rgba(0,0,0,0.8)]">
             <motion.span className="block font-bold tracking-tighter" variants={fadeInUp} transition={{ duration: 0.8, ease }}>
               ResearchGuard AI
             </motion.span>
@@ -167,7 +170,7 @@ export function Hero(): ReactNode {
             </motion.span>
           </h1>
 
-          <motion.p className="text-lg text-pm-muted-foreground mb-8 max-w-2xl leading-relaxed" variants={fadeInUp} transition={{ duration: 0.8, ease }}>
+          <motion.p className="text-lg text-pm-muted-foreground dark:text-neutral-200 mb-8 max-w-2xl leading-relaxed dark:drop-shadow-sm" variants={fadeInUp} transition={{ duration: 0.8, ease }}>
             Eliminate hallucinated papers, ungrounded citations, and overconfident conclusions. 6 autonomous
             agents plan, search peer-reviewed literature, extract empirical evidence, independently verify
             citations, and stress-test every claim.
