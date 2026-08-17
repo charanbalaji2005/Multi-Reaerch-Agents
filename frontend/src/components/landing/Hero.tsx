@@ -2,7 +2,21 @@
 
 import Image from 'next/image'
 import { LogoLoop, type LogoItem } from './LogoLoop'
-import { ArrowDownRight, CheckCircle2, AlertTriangle, Zap } from 'lucide-react'
+import {
+  ArrowRight,
+  CheckCircle2,
+  Check,
+  Zap,
+  Sparkles,
+  TrendingUp,
+  BarChart2,
+  Users,
+  ShieldCheck,
+  FileText,
+  Minimize2,
+  X,
+  Loader2,
+} from 'lucide-react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
 import { useRef, type ReactNode, type MouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
@@ -11,13 +25,8 @@ import { useAuthStore } from '@/lib/store'
 const ease = [0.23, 1, 0.32, 1] as const
 
 const fadeInUp = {
-  hidden: { opacity: 0, y: 20, filter: 'blur(8px)' },
+  hidden: { opacity: 0, y: 20, filter: 'blur(6px)' },
   visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
-}
-
-const fadeInScale = {
-  hidden: { opacity: 0, scale: 0.95, filter: 'blur(8px)' },
-  visible: { opacity: 1, scale: 1, filter: 'blur(0px)' },
 }
 
 const academicLogos: LogoItem[] = [
@@ -25,78 +34,11 @@ const academicLogos: LogoItem[] = [
   { node: <span className="text-[0.9em] font-semibold tracking-tight">arXiv.org</span> },
   { node: <span className="text-[0.9em] font-semibold tracking-tight">Semantic Scholar</span> },
   { node: <span className="text-[0.9em] font-semibold tracking-tight">Crossref API</span> },
+  { node: <span className="text-[0.9em] font-semibold tracking-tight">OpenAlex</span> },
+  { node: <span className="text-[0.9em] font-semibold tracking-tight">Europe PMC</span> },
   { node: <span className="text-[0.9em] font-semibold tracking-tight">The Lancet</span> },
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">IEEE Xplore</span> },
   { node: <span className="text-[0.9em] font-semibold tracking-tight">PLoS ONE</span> },
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">bioRxiv / medRxiv</span> },
 ]
-
-const PARALLAX_INTENSITY = 20
-
-function HeroDashboard(): ReactNode {
-  return (
-    <div className="aspect-[16/9] w-full bg-neutral-950 p-5 text-white sm:p-8">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[0.18em] text-pm-accent">ResearchGuard AI</p>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-4xl">Claim Verification</h2>
-        </div>
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-pm-accent text-black">
-          <Zap className="h-6 w-6" />
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
-          <div className="mb-4 flex items-center justify-between">
-            <span className="text-sm text-white/60">Live inquiry</span>
-            <span className="rounded-full bg-pm-accent px-3 py-1 text-xs font-semibold text-black">6 Agents</span>
-          </div>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between rounded-xl bg-black/30 p-3">
-              <div>
-                <p className="text-sm font-medium">Supported claim</p>
-                <p className="mt-1 text-xs text-white/45">Insulin sensitivity · The Lancet Diabetes (2024)</p>
-              </div>
-              <span className="font-mono text-xs font-semibold text-pm-accent bg-pm-accent/10 px-2 py-1 rounded-lg flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" /> 96%
-              </span>
-            </div>
-            <div className="flex items-center justify-between rounded-xl bg-black/30 p-3">
-              <div>
-                <p className="text-sm font-medium">Critic audit</p>
-                <p className="mt-1 text-xs text-white/45">Correlation vs causation flagged</p>
-              </div>
-              <span className="font-mono text-xs font-semibold text-amber-400 bg-amber-400/10 px-2 py-1 rounded-lg flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3" /> Warning
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid gap-4">
-          <div className="rounded-2xl bg-pm-accent p-4 text-black">
-            <div className="flex items-center gap-2 text-sm font-semibold">
-              <Zap className="h-4 w-4" />
-              Integrity score
-            </div>
-            <p className="mt-4 text-5xl font-semibold tracking-tight">94</p>
-            <p className="mt-2 text-sm text-black/60">27 claims checked across 18 sources.</p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-4">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
-              <CheckCircle2 className="h-4 w-4 text-pm-accent" />
-              Run cost
-            </div>
-            <p className="text-sm leading-relaxed text-white/60">
-              Groq Llama-3.3-70B · $0.0112 · 38s to full dossier
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 export function Hero(): ReactNode {
   const sectionRef = useRef<HTMLElement>(null)
@@ -112,7 +54,7 @@ export function Hero(): ReactNode {
 
   const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
     if (!sectionRef.current) return
-    if (window.innerWidth < 850) return
+    if (typeof window !== 'undefined' && window.innerWidth < 850) return
 
     const rect = sectionRef.current.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
@@ -121,8 +63,8 @@ export function Hero(): ReactNode {
     const offsetX = (e.clientX - centerX) / (rect.width / 2)
     const offsetY = (e.clientY - centerY) / (rect.height / 2)
 
-    mouseX.set(offsetX * PARALLAX_INTENSITY)
-    mouseY.set(offsetY * PARALLAX_INTENSITY)
+    mouseX.set(offsetX * 15)
+    mouseY.set(offsetY * 15)
   }
 
   const handleMouseLeave = () => {
@@ -130,97 +72,305 @@ export function Hero(): ReactNode {
     mouseY.set(0)
   }
 
+  const primaryHref = user ? '/dashboard' : '/auth'
+
   return (
     <section
       ref={sectionRef}
-      className="flex flex-col relative"
+      className="flex flex-col relative min-h-screen overflow-hidden"
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
     >
+      {/* ── HIGH-RESOLUTION SCIENTIFIC MOUNTAIN LANDSCAPE BACKGROUND ── */}
       <motion.div
-        className="absolute top-0 inset-x-0 h-[950px] max-[850px]:h-[750px] z-0 overflow-hidden pointer-events-none rounded-b-[2.5rem]"
+        className="absolute inset-0 w-full h-[1550px] max-[850px]:h-[1350px] z-0 overflow-hidden pointer-events-none"
         style={{ x, y }}
         aria-hidden="true"
       >
         <Image
           src="/BG.jpg"
-          alt="Scientific neural landscape"
+          alt="Luminar AI Scientific Neural Landscape"
           fill
           priority
-          quality={95}
+          quality={100}
           className="object-cover object-top"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-pm-background dark:from-black/40 dark:to-pm-background pointer-events-none" />
+        {/* Soft atmospheric gradient transitions */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/30 via-transparent to-pm-background pointer-events-none" />
       </motion.div>
 
-      <div className="relative z-10 flex items-start justify-center px-6 pt-48 max-[850px]:pt-32">
+      {/* ── HERO TEXT & HEADLINE ── */}
+      <div className="relative z-10 flex flex-col items-center justify-center px-6 pt-36 sm:pt-40 max-w-4xl mx-auto text-center">
         <motion.div
-          className="flex flex-col items-center max-[850px]:items-start text-center max-[850px]:text-left max-w-4xl max-[850px]:w-full"
           initial="hidden"
           animate="visible"
-          transition={{ staggerChildren: 0.15, delayChildren: 0.2 }}
+          transition={{ staggerChildren: 0.12, delayChildren: 0.1 }}
+          className="flex flex-col items-center"
         >
+          {/* Badge */}
           <motion.div
-            className="inline-flex items-center gap-1.5 pl-4 pr-3 py-1.5 rounded-xl border border-pm-border bg-pm-frame text-pm-foreground text-sm font-medium mb-6 shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-neutral-200/90 bg-white/90 backdrop-blur-md text-neutral-800 text-xs font-semibold mb-6 shadow-xs"
             variants={fadeInUp}
-            transition={{ duration: 0.8, ease }}
+            transition={{ duration: 0.6, ease }}
           >
-            Multi-Agent Scientific Evidence & Citation Verification
-            <span className="text-pm-accent font-bold">+</span>
+            <Sparkles className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" />
+            <span>AI-Powered Research Intelligence</span>
           </motion.div>
 
-          <h1 className="text-7xl max-[850px]:text-5xl font-medium tracking-tight leading-[1.1] mb-6 text-pm-foreground">
-            <motion.span className="block font-bold tracking-tighter" variants={fadeInUp} transition={{ duration: 0.8, ease }}>
-              ResearchGuard AI
-            </motion.span>
-            <motion.span className="block" variants={fadeInUp} transition={{ duration: 0.8, ease }}>
-              Audit claims with <span className="italic font-serif text-pm-accent">clarity</span>
-            </motion.span>
-          </h1>
+          {/* Heading */}
+          <motion.h1
+            className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight leading-[1.08] mb-5 text-neutral-900"
+            variants={fadeInUp}
+            transition={{ duration: 0.6, ease }}
+          >
+            Autonomous Research.
+            <span className="block text-[#2e7d32] dark:text-[#388e3c]">Reliable Evidence.</span>
+          </motion.h1>
 
-          <motion.p className="text-lg text-pm-muted-foreground mb-8 max-w-2xl leading-relaxed" variants={fadeInUp} transition={{ duration: 0.8, ease }}>
-            Eliminate hallucinated papers, ungrounded citations, and overconfident conclusions. 6 autonomous
-            agents plan, search peer-reviewed literature, extract empirical evidence, independently verify
-            citations, and stress-test every claim.
+          {/* Subtitle */}
+          <motion.p
+            className="text-sm sm:text-base md:text-lg text-neutral-600 max-w-2xl leading-relaxed mb-8 font-normal"
+            variants={fadeInUp}
+            transition={{ duration: 0.6, ease }}
+          >
+            Luminar AI orchestrates specialized agents to search, analyze, verify, and synthesize research — so you can trust every finding.
           </motion.p>
 
-          <motion.button
-            onClick={() => router.push(user ? '/dashboard/research' : '/auth')}
-            className="group relative cursor-pointer inline-flex items-center max-[850px]:w-full"
-            variants={fadeInScale}
-            transition={{ duration: 0.8, ease }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+          {/* Call to Actions */}
+          <motion.div
+            className="flex items-center gap-3.5 flex-wrap justify-center"
+            variants={fadeInUp}
+            transition={{ duration: 0.6, ease }}
           >
-            <span className="absolute right-0 inset-y-0 w-[calc(100%-2rem)] max-[850px]:w-full rounded-xl bg-pm-accent" />
-            <span className="relative z-10 px-6 py-3 rounded-xl bg-pm-foreground text-pm-background font-semibold max-[850px]:flex-1 shadow-md">
-              Launch research verification
-            </span>
-            <span className="relative -left-px z-10 w-11 h-11 rounded-xl flex items-center justify-center text-black">
-              <ArrowDownRight className="w-5 h-5 transition-transform duration-300 group-hover:-rotate-45" />
-            </span>
-          </motion.button>
+            <button
+              type="button"
+              onClick={() => router.push(primaryHref)}
+              className="px-6 py-3 rounded-full bg-neutral-900 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all group"
+            >
+              <span>Start Research</span>
+              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+            </button>
+
+            <a
+              href="#how-it-works"
+              className="px-6 py-3 rounded-full bg-white/90 hover:bg-white text-neutral-800 text-xs sm:text-sm font-semibold border border-neutral-200/90 shadow-sm transition-all backdrop-blur-md"
+            >
+              Explore Features
+            </a>
+          </motion.div>
         </motion.div>
       </div>
 
-      <motion.div
-        className="relative px-6 mt-24 max-[850px]:mt-10"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, delay: 0.6, ease }}
-      >
-        <div className="relative max-w-5xl mx-auto">
-          <div
-            className="relative rounded-2xl overflow-hidden border border-neutral-200 shadow-2xl"
-            style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)', maskImage: 'linear-gradient(to bottom, black 50%, transparent 100%)' }}
+      {/* ── FLOATING SCIENTIFIC GLASS WIDGETS OVER LANDSCAPE ── */}
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 mt-16 sm:mt-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* Top Left: Evidence Found */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="w-full sm:w-64 p-4 rounded-2xl bg-white/85 dark:bg-neutral-900/85 backdrop-blur-xl border border-white/60 dark:border-neutral-700/60 shadow-lg"
           >
-            <HeroDashboard />
-          </div>
-        </div>
-      </motion.div>
+            <div className="flex items-center justify-between text-[11px] font-semibold text-neutral-500 mb-2">
+              <span>Evidence Found</span>
+              <span className="text-neutral-400 text-xs">×</span>
+            </div>
+            <div className="flex items-end justify-between">
+              <div>
+                <div className="text-2xl font-bold text-neutral-900 dark:text-white">128</div>
+                <div className="text-[10px] font-semibold text-emerald-600">+24 today</div>
+              </div>
+              <div className="flex items-end gap-1 h-8">
+                <span className="w-1.5 h-3 bg-emerald-500/30 rounded-t-xs" />
+                <span className="w-1.5 h-4 bg-emerald-500/50 rounded-t-xs" />
+                <span className="w-1.5 h-6 bg-emerald-500/70 rounded-t-xs" />
+                <span className="w-1.5 h-5 bg-emerald-500/60 rounded-t-xs" />
+                <span className="w-1.5 h-8 bg-emerald-500 rounded-t-xs" />
+              </div>
+            </div>
+          </motion.div>
 
-      <motion.div className="pt-24 pb-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1, ease }}>
-        <p className="text-center text-xs text-pm-muted-foreground font-mono uppercase tracking-widest mb-4">
+          {/* Top Right: Research Integrity */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="w-full sm:w-64 ml-auto p-4 rounded-2xl bg-white/85 dark:bg-neutral-900/85 backdrop-blur-xl border border-white/60 dark:border-neutral-700/60 shadow-lg"
+          >
+            <div className="flex items-center justify-between text-[11px] font-semibold text-neutral-500 mb-2">
+              <span>Research Integrity</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            </div>
+            <div className="flex items-end justify-between">
+              <div>
+                <div className="text-2xl font-bold text-neutral-900 dark:text-white">
+                  92<span className="text-xs font-normal text-neutral-400">/100</span>
+                </div>
+                <div className="text-[10px] font-semibold text-emerald-600">Very High</div>
+              </div>
+              {/* Green trend curve SVG */}
+              <svg className="w-16 h-8 text-emerald-500 stroke-current fill-none stroke-2" viewBox="0 0 64 32">
+                <path d="M0 24 Q 16 28, 32 16 T 64 6" />
+                <circle cx="64" cy="6" r="2.5" className="fill-emerald-500" />
+              </svg>
+            </div>
+          </motion.div>
+
+          {/* Mid Left: Sources Verified */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.5 }}
+            className="w-full sm:w-56 p-3.5 rounded-2xl bg-white/85 dark:bg-neutral-900/85 backdrop-blur-xl border border-white/60 dark:border-neutral-700/60 shadow-lg"
+          >
+            <div className="flex items-center justify-between text-[11px] font-semibold text-neutral-500 mb-1.5">
+              <span>Sources Verified</span>
+              <Check className="w-3 h-3 text-emerald-600" />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xl font-bold text-neutral-900 dark:text-white">98%</div>
+                <div className="text-[10px] font-medium text-neutral-500">High Integrity</div>
+              </div>
+              <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-600 flex items-center justify-center">
+                <Check className="w-3.5 h-3.5" />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Mid Right: Agents Online */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+            className="w-full sm:w-60 ml-auto p-3.5 rounded-2xl bg-white/85 dark:bg-neutral-900/85 backdrop-blur-xl border border-white/60 dark:border-neutral-700/60 shadow-lg"
+          >
+            <div className="flex items-center justify-between text-[11px] font-semibold text-neutral-500 mb-1.5">
+              <span>Agents Online</span>
+              <span className="text-neutral-400 text-xs">×</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xl font-bold text-neutral-900 dark:text-white">6</div>
+                <div className="text-[10px] font-medium text-neutral-500">Active</div>
+              </div>
+              <div className="flex -space-x-1.5">
+                {['bg-blue-500', 'bg-emerald-500', 'bg-violet-500', 'bg-amber-500'].map((col, i) => (
+                  <div
+                    key={i}
+                    className={`w-5 h-5 rounded-full ${col} text-white text-[8px] font-bold flex items-center justify-center border-2 border-white`}
+                  >
+                    ✦
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* ── CENTER BOTTOM: RESEARCH IN PROGRESS GLASS PANEL ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.7 }}
+          className="w-full rounded-3xl bg-white/90 dark:bg-neutral-900/90 backdrop-blur-2xl border border-white/80 dark:border-neutral-700/80 shadow-2xl overflow-hidden p-5 sm:p-7"
+        >
+          {/* Window Header */}
+          <div className="flex items-center justify-between pb-4 border-b border-neutral-100 dark:border-neutral-800 mb-5">
+            <span className="text-xs font-bold text-neutral-900 dark:text-white">Research in Progress</span>
+            <div className="flex items-center gap-1.5 text-neutral-400 text-xs">
+              <Minimize2 className="w-3.5 h-3.5 cursor-pointer hover:text-neutral-600" />
+              <X className="w-3.5 h-3.5 cursor-pointer hover:text-neutral-600" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1.9fr] gap-6">
+            {/* Left: Agent Pipeline Checklist */}
+            <div className="space-y-3.5 pr-0 md:pr-4 border-r-0 md:border-r border-neutral-100 dark:border-neutral-800">
+              {[
+                { title: 'Planning', subtitle: 'Research Planner', status: 'completed' },
+                { title: 'Searching', subtitle: 'Literature Searcher', status: 'completed' },
+                { title: 'Extracting', subtitle: 'Evidence Extractor', status: 'completed' },
+                { title: 'Verifying', subtitle: 'Citation Verifier', status: 'completed' },
+                { title: 'Critiquing', subtitle: 'Research Critic', status: 'in_progress' },
+                { title: 'Writing', subtitle: 'Report Writer', status: 'pending' },
+              ].map((step, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+                        step.status === 'completed'
+                          ? 'bg-emerald-100 text-emerald-700 font-bold'
+                          : step.status === 'in_progress'
+                          ? 'bg-neutral-900 text-white'
+                          : 'border border-neutral-300 text-neutral-300'
+                      }`}
+                    >
+                      {step.status === 'completed' ? '✓' : step.status === 'in_progress' ? '●' : '○'}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-neutral-900 dark:text-white leading-tight">{step.title}</div>
+                      <div className="text-[10px] text-neutral-400 leading-none">{step.subtitle}</div>
+                    </div>
+                  </div>
+                  {step.status === 'completed' && (
+                    <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[9px] font-bold">
+                      ✓
+                    </span>
+                  )}
+                  {step.status === 'in_progress' && (
+                    <Loader2 className="w-3.5 h-3.5 text-neutral-700 animate-spin" />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Right: Synthesis Details */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-bold text-neutral-900 dark:text-white">
+                  Intermittent fasting and insulin sensitivity
+                </h3>
+                <p className="text-[11px] text-neutral-500 mt-0.5">Analyzing 128 sources from 6 databases</p>
+              </div>
+
+              {/* Skeleton placeholders */}
+              <div className="space-y-2">
+                <div className="h-2 w-11/12 bg-neutral-100 dark:bg-neutral-800 rounded-full" />
+                <div className="h-2 w-full bg-neutral-100 dark:bg-neutral-800 rounded-full" />
+                <div className="h-2 w-3/4 bg-neutral-100 dark:bg-neutral-800 rounded-full" />
+              </div>
+
+              {/* Key findings summary */}
+              <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 space-y-1.5">
+                <div className="text-[11px] font-bold text-neutral-800 dark:text-neutral-200">Key Findings</div>
+                <ul className="text-[10px] text-neutral-600 dark:text-neutral-400 space-y-1 pl-1">
+                  <li>• Significant improvement in insulin sensitivity</li>
+                  <li>• Optimal window: 14:10 to 16:8</li>
+                  <li>• Strong evidence from RCTs</li>
+                </ul>
+              </div>
+
+              {/* Footer status */}
+              <div className="flex items-center justify-between text-[10px] pt-2 border-t border-neutral-100 dark:border-neutral-800">
+                <span className="text-neutral-500 font-medium">24 citations</span>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">
+                  High Confidence
+                </span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* ── ACADEMIC LOGOS TICKER ── */}
+      <motion.div
+        className="relative z-10 pt-20 pb-12"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8, delay: 0.9 }}
+      >
+        <p className="text-center text-[10px] text-neutral-500 font-mono uppercase tracking-widest mb-4">
           Direct academic repositories & publication graphs
         </p>
         <LogoLoop logos={academicLogos} speed={60} logoHeight={42} gap={124} />
