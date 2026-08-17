@@ -52,16 +52,30 @@ async def upload_project_document(
 
     extracted_text = ""
     status = "Ready"
-    if ext in [".pdf", ".docx", ".txt"]:
+    image_analysis_data = {}
+
+    if ext == ".pdf":
         try:
             extracted_text = extract_text_from_file(file_path)
             if not extracted_text:
-                status = "Warning: No readable text extracted"
+                status = "Unable to extract readable text from this PDF."
+                extracted_text = "Unable to extract readable text from this PDF."
         except Exception as e:
-            status = f"Error extracting text: {str(e)}"
+            status = f"Unable to extract readable text from this PDF: {str(e)}"
+            extracted_text = "Unable to extract readable text from this PDF."
+    elif ext in [".docx", ".txt"]:
+        try:
+            extracted_text = extract_text_from_file(file_path)
+            if not extracted_text:
+                status = "No text content found in document."
+        except Exception as e:
+            status = f"Error extracting document text: {str(e)}"
     elif ext in [".png", ".jpg", ".jpeg"]:
-        status = "Image available for scientific analysis"
-        extracted_text = f"[Uploaded scientific image / chart: {file.filename}]"
+        from app.services.image_analyzer import analyze_scientific_image
+        img_res = await analyze_scientific_image(file_path, file.filename)
+        extracted_text = img_res.get("full_summary", "Image analysis is currently unavailable with the configured model.")
+        status = img_res.get("status", "Ready")
+        image_analysis_data = img_res
 
     file_doc = {
         "id": str(ObjectId()),
@@ -71,6 +85,7 @@ async def upload_project_document(
         "file_path": file_path,
         "status": status,
         "extracted_text": extracted_text,
+        "image_analysis": image_analysis_data,
         "characters": len(extracted_text),
         "uploaded_at": datetime.utcnow().isoformat(),
     }

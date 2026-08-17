@@ -257,7 +257,7 @@ class ResearchOrchestrator:
                 "critic_evaluation": report_data.get("critic_evaluation", ""),
                 "recommendations": report_data.get("recommendations", []),
                 "references": report_data.get("references", []),
-                "integrity_score": report_data.get("integrity_score", 88.0),
+                "integrity_score": report_data.get("integrity_score"),
                 "safety_disclaimer": report_data.get("safety_disclaimer", ""),
                 "created_at": datetime.utcnow(),
             }
@@ -317,7 +317,8 @@ class ResearchOrchestrator:
             except Exception as viz_err:
                 print(f"Visualization generation fallback: {viz_err}")
 
-            await update_agent("report", "completed", f"✅ Publication-grade report synthesized with Integrity Score {report_data.get('integrity_score', 88)}/100")
+            score_display = f" with Integrity Score {report_data.get('integrity_score')}/100" if report_data.get('integrity_score') is not None else ""
+            await update_agent("report", "completed", f"✅ Publication-grade report synthesized{score_display}")
 
             # ── 8. Cost & Token Accounting ────────────────────────
             verdict_counts = {
@@ -344,7 +345,7 @@ class ResearchOrchestrator:
                 {
                     "$set": {
                         "status": "completed",
-                        "integrity_score": report_data.get("integrity_score", 88.0),
+                        "integrity_score": report_data.get("integrity_score"),
                         "has_report": True,
                         "has_slides": True,
                         "has_diagram": True,

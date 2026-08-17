@@ -23,15 +23,31 @@ class ReportWriterAgent:
         Compile an auditable, verified scientific report with inline citations,
         integrity metrics, critical evaluation, document synthesis, and structured bibliography.
         """
-        total_claims = len(verifications) or 1
-        supported = sum(1 for v in verifications if v.get("verdict") == "SUPPORTED")
-        partially = sum(1 for v in verifications if v.get("verdict") == "PARTIALLY_SUPPORTED")
-        contradicted = sum(1 for v in verifications if v.get("verdict") == "CONTRADICTED")
-        unsupported = sum(1 for v in verifications if v.get("verdict") in ["UNSUPPORTED", "SOURCE_NOT_FOUND"])
+        total_claims = len(verifications)
+        if total_claims == 0 or len(sources) == 0:
+            integrity_score = None
+        else:
+            supported = sum(1 for v in verifications if v.get("verdict") == "SUPPORTED")
+            partially = sum(1 for v in verifications if v.get("verdict") == "PARTIALLY_SUPPORTED")
+            contradicted = sum(1 for v in verifications if v.get("verdict") == "CONTRADICTED")
+            unsupported = sum(1 for v in verifications if v.get("verdict") in ["UNSUPPORTED", "SOURCE_NOT_FOUND"])
 
-        avg_source_quality = sum(s.get("quality_score", 0.85) for s in sources) / (len(sources) or 1)
-        raw_score = (supported * 100.0 + partially * 65.0 + unsupported * 10.0) / total_claims
-        integrity_score = round(min(100.0, max(0.0, raw_score * (0.5 + 0.5 * avg_source_quality))), 1)
+            # ResearchGuard Integrity Score Formula (Part 32):
+            # 0.30 citation correctness + 0.25 evidence grounding + 0.20 source quality + 0.15 cross-source agreement + 0.10 metadata validity
+            citation_correctness = (supported * 1.0 + partially * 0.65) / total_claims
+            evidence_grounding = sum(v.get("confidence", 0.85) for v in verifications) / total_claims
+            source_quality = sum(s.get("quality_score", 0.85) for s in sources) / len(sources)
+            cross_source_agreement = max(0.0, 1.0 - (contradicted / total_claims))
+            metadata_validity = sum(1 for s in sources if s.get("doi") or s.get("url")) / len(sources)
+
+            calculated_score = (
+                0.30 * citation_correctness
+                + 0.25 * evidence_grounding
+                + 0.20 * source_quality
+                + 0.15 * cross_source_agreement
+                + 0.10 * metadata_validity
+            ) * 100.0
+            integrity_score = round(min(99.0, max(15.0, calculated_score)), 1)
 
         dossier = {
             "question": research_plan.get("research_question"),

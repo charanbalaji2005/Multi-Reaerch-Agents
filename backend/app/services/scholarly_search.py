@@ -62,9 +62,8 @@ Respond with ONLY a JSON array of string queries:
 
         try:
             raw_res, _ = await generate_with_usage(
-                prompt=prompt,
-                system_prompt="You are an expert scientific librarian specializing in PubMed, arXiv, and IEEE Boolean search strategies. Output pure JSON only.",
-                temperature=0.2,
+                system="You are an expert scientific librarian specializing in PubMed, arXiv, OpenAlex, and Crossref Boolean search strategies. Output pure JSON array only.",
+                user_prompt=prompt,
                 max_tokens=600,
             )
             parsed = clean_json_response(raw_res)

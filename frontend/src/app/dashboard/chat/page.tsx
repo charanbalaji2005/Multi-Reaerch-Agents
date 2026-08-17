@@ -682,10 +682,16 @@ function ResearchWorkspaceContent() {
     }
   }
 
-  // Filter projects by search
-  const filteredProjects = projects.filter((p) =>
-    (p.topic || '').toLowerCase().includes(searchHistoryText.toLowerCase())
-  )
+  // Deep Search across: topic, description, documents, and uploaded filenames
+  const filteredProjects = projects.filter((p) => {
+    const q = searchHistoryText.toLowerCase().trim()
+    if (!q) return true
+    const topicMatch = (p.topic || '').toLowerCase().includes(q)
+    const descMatch = (p.description || '').toLowerCase().includes(q)
+    const docsMatch = (p.documents || []).some((d: string) => d.toLowerCase().includes(q))
+    const filesMatch = (p.uploaded_files || []).some((f: any) => (f.filename || '').toLowerCase().includes(q))
+    return topicMatch || descMatch || docsMatch || filesMatch
+  })
 
   // Chronological Grouping
   const groupProjects = (list: Project[]) => {
@@ -890,8 +896,12 @@ function ResearchWorkspaceContent() {
                   <span>Sources: {sources.length}</span>
                   <span>•</span>
                   <span>Files: {uploadedFiles.length}</span>
-                  <span>•</span>
-                  <span>Integrity: {activeProject?.integrity_score || 88}/100</span>
+                  {activeProject?.integrity_score ? (
+                    <>
+                      <span>•</span>
+                      <span className="text-emerald-500 font-semibold">Integrity: {activeProject.integrity_score}/100</span>
+                    </>
+                  ) : null}
                 </div>
               </div>
             </div>
