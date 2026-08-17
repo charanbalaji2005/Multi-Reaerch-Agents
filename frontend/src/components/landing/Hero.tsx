@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { LogoLoop, type LogoItem } from './LogoLoop'
 import { ArrowDownRight, CheckCircle2, AlertTriangle, Zap } from 'lucide-react'
 import { motion, useMotionValue, useSpring } from 'framer-motion'
@@ -137,14 +138,22 @@ export function Hero(): ReactNode {
       onMouseLeave={handleMouseLeave}
     >
       <motion.div
-        className="absolute top-0 inset-x-0 h-[1100px] max-[850px]:h-[850px] bg-cover bg-top bg-no-repeat -z-10 rounded-b-[3rem] overflow-hidden"
-        style={{ backgroundImage: 'url(/BG.jpg)', x, y }}
+        className="absolute top-0 inset-x-0 h-[950px] max-[850px]:h-[750px] z-0 overflow-hidden pointer-events-none rounded-b-[2.5rem]"
+        style={{ x, y }}
         aria-hidden="true"
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-pm-background dark:from-black/40 dark:to-pm-background pointer-events-none" />
+        <Image
+          src="/BG.jpg"
+          alt="Scientific neural landscape"
+          fill
+          priority
+          quality={95}
+          className="object-cover object-top"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-pm-background dark:from-black/40 dark:to-pm-background pointer-events-none" />
       </motion.div>
 
-      <div className="flex items-start justify-center px-6 pt-48 max-[850px]:pt-32">
+      <div className="relative z-10 flex items-start justify-center px-6 pt-48 max-[850px]:pt-32">
         <motion.div
           className="flex flex-col items-center max-[850px]:items-start text-center max-[850px]:text-left max-w-4xl max-[850px]:w-full"
           initial="hidden"
