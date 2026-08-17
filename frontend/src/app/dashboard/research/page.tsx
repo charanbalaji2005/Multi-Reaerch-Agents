@@ -58,7 +58,12 @@ export default function ResearchPage() {
   const [topic, setTopic] = useState('')
   const [description, setDescription] = useState('')
   const [url, setUrl] = useState('')
-  const [researchMode, setResearchMode] = useState('literature_review')
+  const [selectedModes, setSelectedModes] = useState<string[]>([
+    'literature_review',
+    'citation_verification',
+    'evidence_comparison',
+    'hypothesis_generation',
+  ])
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState(0)
@@ -78,6 +83,26 @@ export default function ResearchPage() {
     return () => clearInterval(interval)
   }, [loading])
 
+  const toggleMode = (id: string) => {
+    if (selectedModes.includes(id)) {
+      if (selectedModes.length > 1) {
+        setSelectedModes(selectedModes.filter((m) => m !== id))
+      } else {
+        toast('At least one audit mode must remain active', { icon: 'ℹ️' })
+      }
+    } else {
+      setSelectedModes([...selectedModes, id])
+    }
+  }
+
+  const selectAllModes = () => {
+    if (selectedModes.length === RESEARCH_MODES.length) {
+      setSelectedModes(['literature_review'])
+    } else {
+      setSelectedModes(RESEARCH_MODES.map((m) => m.id))
+    }
+  }
+
   const exampleQuestions = [
     "Does intermittent fasting improve insulin sensitivity in adults with prediabetes?",
     "What is the empirical latency and computational overhead of ZK-SNARKs vs STARKs in distributed rollups?",
@@ -95,7 +120,7 @@ export default function ResearchPage() {
     try {
       const fd = new FormData()
       fd.append('topic', topic)
-      fd.append('research_mode', researchMode)
+      fd.append('research_mode', selectedModes.join(','))
       if (description) fd.append('description', description)
       if (url && inputMode === 'url') fd.append('url', url)
       if (file && inputMode === 'file') fd.append('file', file)
@@ -265,29 +290,58 @@ export default function ResearchPage() {
           </div>
         </div>
 
-        {/* Research Mode Selection */}
+        {/* Research Mode Selection (Multi-Select & Select All) */}
         <div className="mb-6">
-          <label className="block text-xs font-semibold text-pm-foreground uppercase tracking-wider mb-2.5">
-            Audit Mode
-          </label>
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center gap-2">
+              <label className="block text-xs font-semibold text-pm-foreground uppercase tracking-wider">
+                Audit Mode
+              </label>
+              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-pm-accent text-black">
+                {selectedModes.length === RESEARCH_MODES.length
+                  ? 'All 4 Active (Full Comprehensive Audit)'
+                  : `${selectedModes.length} Selected`}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={selectAllModes}
+              className="text-xs font-semibold text-pm-accent hover:underline flex items-center gap-1 transition-all"
+            >
+              <Sparkles className="w-3 h-3" />
+              <span>
+                {selectedModes.length === RESEARCH_MODES.length ? 'Reset to Single' : 'Select All Modes'}
+              </span>
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {RESEARCH_MODES.map((mode) => {
               const Icon = mode.icon
-              const isSelected = researchMode === mode.id
+              const isSelected = selectedModes.includes(mode.id)
               return (
                 <div
                   key={mode.id}
-                  onClick={() => setResearchMode(mode.id)}
-                  className={`cursor-pointer p-3.5 rounded-2xl transition-all border ${
+                  onClick={() => toggleMode(mode.id)}
+                  className={`cursor-pointer p-3.5 rounded-2xl transition-all border select-none ${
                     isSelected
-                      ? 'bg-pm-muted border-pm-ring ring-1 ring-pm-ring'
-                      : 'bg-pm-background border-pm-border hover:border-pm-ring/30'
+                      ? 'bg-pm-muted border-pm-ring ring-1 ring-pm-ring shadow-sm'
+                      : 'bg-pm-background border-pm-border hover:border-pm-ring/30 opacity-70 hover:opacity-100'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5 mb-1">
-                    <Icon className={`w-4 h-4 ${isSelected ? 'text-pm-ring' : 'text-pm-muted-foreground'}`} />
-                    <span className="text-xs font-semibold text-pm-foreground">{mode.label}</span>
-                    {isSelected && <span className="w-2 h-2 rounded-full bg-pm-accent ml-auto" />}
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2.5">
+                      <Icon className={`w-4 h-4 ${isSelected ? 'text-pm-ring' : 'text-pm-muted-foreground'}`} />
+                      <span className="text-xs font-bold text-pm-foreground">{mode.label}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      {isSelected ? (
+                        <span className="w-2 h-2 rounded-full bg-pm-accent" />
+                      ) : (
+                        <span className="w-2 h-2 rounded-full border border-pm-border" />
+                      )}
+                    </div>
                   </div>
                   <p className="text-[11px] text-pm-muted-foreground leading-snug pl-6.5">{mode.desc}</p>
                 </div>
