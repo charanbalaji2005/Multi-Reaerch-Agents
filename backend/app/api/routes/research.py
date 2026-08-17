@@ -13,7 +13,7 @@ from app.models.schemas import (
     ReportResponse, SlidesResponse, DiagramResponse, ChatRequest, ChatResponse
 )
 from app.services.ai_client import generate
-from app.services.orchestrator import ResearchOrchestrator
+from app.services.orchestrator import ResearchOrchestrator, extract_text_from_file
 
 router = APIRouter()
 
@@ -23,6 +23,195 @@ def obj_id(id_str: str) -> ObjectId:
         return ObjectId(id_str)
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid ID format")
+
+
+@router.post("/{project_id}/upload-document")
+async def upload_project_document(
+    project_id: str,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Upload a research paper, PDF, DOCX, TXT or image to an active research investigation."""
+    db = get_db()
+    project = await db.research_projects.find_one({"_id": obj_id(project_id), "user_id": str(current_user["_id"])})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    ext = os.path.splitext(file.filename)[1].lower()
+    allowed_exts = [".pdf", ".docx", ".txt", ".png", ".jpg", ".jpeg"]
+    if ext not in allowed_exts:
+        raise HTTPException(status_code=400, detail=f"Unsupported file format: {ext}. Supported: PDF, DOCX, TXT, PNG, JPG")
+
+    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    filename = f"{ObjectId()}_{file.filename}"
+    file_path = os.path.join(settings.UPLOAD_DIR, filename)
+
+    content_bytes = await file.read()
+    async with aiofiles.open(file_path, "wb") as f:
+        await f.write(content_bytes)
+
+    extracted_text = ""
+    status = "Ready"
+    if ext in [".pdf", ".docx", ".txt"]:
+        try:
+            extracted_text = extract_text_from_file(file_path)
+            if not extracted_text:
+                status = "Warning: No readable text extracted"
+        except Exception as e:
+            status = f"Error extracting text: {str(e)}"
+    elif ext in [".png", ".jpg", ".jpeg"]:
+        status = "Image available for scientific analysis"
+        extracted_text = f"[Uploaded scientific image / chart: {file.filename}]"
+
+    file_doc = {
+        "id": str(ObjectId()),
+        "filename": file.filename,
+        "file_type": ext.replace(".", "").upper(),
+        "file_size": len(content_bytes),
+        "file_path": file_path,
+        "status": status,
+        "extracted_text": extracted_text,
+        "characters": len(extracted_text),
+        "uploaded_at": datetime.utcnow().isoformat(),
+    }
+
+    await db.research_projects.update_one(
+        {"_id": obj_id(project_id)},
+        {
+            "$push": {"uploaded_files": file_doc, "documents": file.filename},
+            "$set": {"updated_at": datetime.utcnow()}
+        }
+    )
+
+    return file_doc
+
+
+@router.get("/{project_id}/files")
+async def get_project_files(project_id: str, current_user: dict = Depends(get_current_user)):
+    """Retrieve all uploaded documents and files associated with this research investigation."""
+    db = get_db()
+    project = await db.research_projects.find_one({"_id": obj_id(project_id), "user_id": str(current_user["_id"])})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project.get("uploaded_files", [])
+
+
+@router.get("/{project_id}/chat-history")
+async def get_project_chat_history(project_id: str, current_user: dict = Depends(get_current_user)):
+    """Retrieve full conversation history for this research investigation from MongoDB."""
+    db = get_db()
+    cursor = db.agent_chats.find({"user_id": str(current_user["_id"]), "project_id": project_id}).sort("timestamp", 1).limit(100)
+    messages = []
+    async for doc in cursor:
+        messages.append({
+            "id": str(doc["_id"]),
+            "role": doc["role"],
+            "content": doc["content"],
+            "timestamp": doc["timestamp"].isoformat() if isinstance(doc.get("timestamp"), datetime) else str(doc.get("timestamp")),
+            "agent": doc.get("agent", "Luminar AI"),
+        })
+    return messages
+
+
+@router.post("/{project_id}/chat", response_model=ChatResponse)
+async def chat_with_research(project_id: str, request: ChatRequest, current_user: dict = Depends(get_current_user)):
+    """Unified conversational intelligence with full memory of previous research context & uploaded files."""
+    db = get_db()
+    project = await db.research_projects.find_one({"_id": obj_id(project_id), "user_id": str(current_user["_id"])})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    report = await db.reports.find_one({"project_id": project_id}) or {}
+    sources_doc = await db.literature_sources.find_one({"project_id": project_id}) or {}
+    evidence_doc = await db.evidence_items.find_one({"project_id": project_id}) or {}
+    critiques_doc = await db.critiques.find_one({"project_id": project_id}) or {}
+
+    sources_list = sources_doc.get("sources", [])
+    evidence_list = evidence_doc.get("evidence", [])
+    critiques_list = critiques_doc.get("critiques", [])
+    uploaded_files = project.get("uploaded_files", [])
+
+    # Build comprehensive research context
+    context_blocks = []
+    context_blocks.append(f"Research Topic: {project.get('topic')}")
+    if project.get('description'):
+        context_blocks.append(f"Description: {project.get('description')}")
+
+    if report.get('title'):
+        context_blocks.append(f"Verified Report Title: {report.get('title')}")
+    if report.get('executive_summary'):
+        context_blocks.append(f"Executive Summary: {report.get('executive_summary')}")
+    if report.get('findings'):
+        findings_str = "\n".join([f"- {f.get('section')}: {f.get('content')}" for f in report.get('findings', [])[:6]])
+        context_blocks.append(f"Primary Findings:\n{findings_str}")
+    if report.get('critic_evaluation'):
+        context_blocks.append(f"Critic Audit & Limitations: {report.get('critic_evaluation')}")
+
+    # Add verified sources with real DOIs and URLs
+    if sources_list:
+        sources_str = "\n".join([
+            f"[{idx+1}] {s.get('title')} ({s.get('year', 2024)}) - {s.get('source_platform', 'Academic')}. DOI: {s.get('doi', 'N/A')}. URL: {s.get('url', 'N/A')}"
+            for idx, s in enumerate(sources_list[:12])
+        ])
+        context_blocks.append(f"Verified Sources & Bibliography:\n{sources_str}")
+
+    # Add quantitative evidence
+    if evidence_list:
+        ev_str = "\n".join([
+            f"- Claim: {e.get('claim')} | Metric: {e.get('metric', '')} | Effect: {e.get('effect_size', '')} | p-value: {e.get('p_value', '')} | Sample N: {e.get('sample_size', '')}"
+            for e in evidence_list[:8]
+        ])
+        context_blocks.append(f"Extracted Empirical Metrics:\n{ev_str}")
+
+    # Add uploaded documents / papers text
+    if request.file_text:
+        context_blocks.append(f"--- NEWLY UPLOADED DOCUMENT ({request.file_name or 'Uploaded File'}) ---\n{request.file_text[:3500]}\n--- END UPLOADED DOCUMENT ---")
+    elif uploaded_files:
+        for uf in uploaded_files[-2:]:
+            if uf.get("extracted_text"):
+                context_blocks.append(f"--- ATTACHED WORKSPACE FILE ({uf.get('filename')}) ---\n{uf.get('extracted_text')[:2500]}\n--- END ATTACHED FILE ---")
+
+    full_context = "\n\n".join(context_blocks)
+
+    system_prompt = (
+        "You are Luminar AI (ResearchGuard AI), an elite scientific research intelligence assistant. "
+        "You are conversing with a researcher about this specific investigation. "
+        "You have complete access to the previous research report, extracted statistical evidence, verified academic sources, and uploaded documents.\n\n"
+        "GUIDELINES:\n"
+        "1. Strictly answer scientific and research questions grounded in this evidence and academic literature.\n"
+        "2. If the user uploads a new paper, clinical trial, or text, meticulously compare its findings, sample sizes, and endpoints against the previous research context.\n"
+        "3. When referencing sources, provide exact clickable markdown links: DOIs [DOI: 10.xxxx/...](https://doi.org/10.xxxx/...), PubMed URLs (https://pubmed.ncbi.nlm.nih.gov/...), or arXiv links (https://arxiv.org/abs/...). NEVER hallucinate URLs.\n"
+        "4. Format comparisons, statistical data (hazard ratios, p-values, 95% CI), and structured answers using clean GFM Markdown tables.\n"
+        "5. Distinguish between statistically supported findings, correlation vs causation limits, and adversarial critic warnings.\n\n"
+        f"=== RESEARCH WORKSPACE CONTEXT ===\n{full_context}\n=== END RESEARCH WORKSPACE CONTEXT ==="
+    )
+
+    answer = await generate(system=system_prompt, user_prompt=request.question, max_tokens=1800)
+
+    # Persist chat dialogue to database
+    try:
+        await db.agent_chats.insert_many([
+            {
+                "user_id": str(current_user["_id"]),
+                "project_id": project_id,
+                "agent": "Luminar AI",
+                "role": "user",
+                "content": request.question,
+                "timestamp": datetime.utcnow(),
+            },
+            {
+                "user_id": str(current_user["_id"]),
+                "project_id": project_id,
+                "agent": "Luminar AI",
+                "role": "assistant",
+                "content": answer,
+                "timestamp": datetime.utcnow(),
+            }
+        ])
+    except Exception as e:
+        print(f"Chat persistence warning: {e}")
+
+    return ChatResponse(answer=answer)
 
 
 @router.post("/create", status_code=201)
@@ -240,62 +429,6 @@ async def get_logs(project_id: str, current_user: dict = Depends(get_current_use
         log["timestamp"] = log["timestamp"].isoformat()
         logs.append(log)
     return logs
-
-
-@router.post("/{project_id}/chat", response_model=ChatResponse)
-async def chat_with_research(project_id: str, request: ChatRequest, current_user: dict = Depends(get_current_user)):
-    db = get_db()
-    # Ensure project belongs to user
-    project = await db.research_projects.find_one({"_id": obj_id(project_id), "user_id": str(current_user["_id"])})
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    report = await db.reports.find_one({"project_id": project_id})
-    if not report:
-        raise HTTPException(status_code=400, detail="Report not ready yet")
-
-    # Context string
-    context = f"Title: {report.get('title')}\nExecutive Summary: {report.get('executive_summary')}\n"
-    if report.get('findings'):
-        context += "Findings:\n" + "\n".join([f"- {f['section']}: {f['content']}" for f in report['findings']])
-    if report.get('key_insights'):
-        context += "Key Insights:\n" + "\n".join([f"- {k}" for k in report['key_insights']])
-    if report.get('critic_evaluation'):
-        context += f"\nCritic Audit:\n{report.get('critic_evaluation')}\n"
-
-    system_prompt = (
-        "You are an AI research assistant for ResearchGuard AI. You are answering queries regarding an auditable scientific report. "
-        "Your task is to answer the user's questions about this specific research report in a helpful, "
-        "accurate, and scientifically grounded manner. Use clear citations and distinguish between verified findings and critic warnings.\n\n"
-        f"--- RESEARCH REPORT ---\n{context}\n--- END REPORT ---"
-    )
-
-    answer = await generate(system=system_prompt, user_prompt=request.question, max_tokens=1500)
-    
-    # Persist project chat to database
-    try:
-        await db.agent_chats.insert_many([
-            {
-                "user_id": str(current_user["_id"]),
-                "project_id": project_id,
-                "agent": "co-pilot",
-                "role": "user",
-                "content": request.question,
-                "timestamp": datetime.utcnow(),
-            },
-            {
-                "user_id": str(current_user["_id"]),
-                "project_id": project_id,
-                "agent": "co-pilot",
-                "role": "assistant",
-                "content": answer,
-                "timestamp": datetime.utcnow(),
-            }
-        ])
-    except Exception as e:
-        print(f"Chat persistence warning: {e}")
-
-    return ChatResponse(answer=answer)
 
 
 @router.post("/agent-chat", response_model=ChatResponse)

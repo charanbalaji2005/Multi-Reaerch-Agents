@@ -70,8 +70,23 @@ export const api = {
   getSlides: (id: string) => axiosInstance.get(`/research/${id}/slides`).then((r) => r.data),
   getLogs: (id: string) => axiosInstance.get(`/research/${id}/logs`).then((r) => r.data),
   deleteProject: (id: string) => axiosInstance.delete(`/research/${id}`).then((r) => r.data),
-  chat: (id: string, question: string) =>
-    axiosInstance.post(`/research/${id}/chat`, { question }).then((r) => r.data),
+  chat: (id: string, question: string, fileText?: string, fileName?: string) =>
+    axiosInstance
+      .post(`/research/${id}/chat`, { question, file_text: fileText, file_name: fileName })
+      .then((r) => r.data),
+  uploadDocument: (id: string, file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return axiosInstance
+      .post(`/research/${id}/upload-document`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then((r) => r.data)
+  },
+  getProjectFiles: (id: string) =>
+    axiosInstance.get(`/research/${id}/files`).then((r) => r.data),
+  getProjectChatHistory: (id: string) =>
+    axiosInstance.get(`/research/${id}/chat-history`).then((r) => r.data),
   agentChat: (data: { agent: string; question: string; project_id?: string }) =>
     axiosInstance.post('/research/agent-chat', data).then((r) => r.data),
   getAgentChatHistory: (agent: string, projectId?: string) =>

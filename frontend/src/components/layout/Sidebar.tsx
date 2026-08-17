@@ -1,23 +1,15 @@
 'use client'
-import { useState } from 'react'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
-  ShieldCheck,
   LayoutDashboard,
   FlaskConical,
   FileText,
-  Compass,
-  BookOpen,
-  Dna,
-  AlertTriangle,
-  FileCheck2,
   LogOut,
   Plus,
   X,
   Sparkles,
-  ChevronDown,
 } from 'lucide-react'
 import { useAuthStore } from '@/lib/store'
 import toast from 'react-hot-toast'
@@ -31,7 +23,6 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, logout } = useAuthStore()
-  const [isAgentsOpen, setIsAgentsOpen] = useState(true)
 
   const handleLogout = () => {
     logout()
@@ -39,20 +30,11 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     router.push('/auth')
   }
 
-  const agentPills = [
-    { id: 'planner', name: 'Research Planner', icon: Compass, color: '#6366f1', desc: 'Queries & specs' },
-    { id: 'literature', name: 'Literature Search', icon: BookOpen, color: '#3b82f6', desc: 'PubMed & arXiv' },
-    { id: 'evidence', name: 'Evidence Extraction', icon: Dna, color: '#06b6d4', desc: 'Statistical data' },
-    { id: 'verifier', name: 'Citation Verifier', icon: ShieldCheck, color: '#10b981', desc: 'Audits citations' },
-    { id: 'critic', name: 'Research Critic', icon: AlertTriangle, color: '#f59e0b', desc: 'Stress-test claims' },
-    { id: 'writer', name: 'Report Writer', icon: FileCheck2, color: '#8b5cf6', desc: 'Structured reports' },
-  ]
-
   const navItems = [
     { href: '/dashboard', label: 'Mission Control', icon: LayoutDashboard, exact: true },
     { href: '/dashboard/research', label: 'New Audit', icon: FlaskConical, exact: true },
+    { href: '/dashboard/chat', label: 'AI Research Workspace', icon: Sparkles, exact: false, badge: 'Live' },
     { href: '/dashboard/projects', label: 'Research Projects', icon: FileText, exact: false },
-    { href: '/dashboard/chat', label: 'AI Agents Chat Hub', icon: Sparkles, exact: false, badge: 'Live' },
   ]
 
   return (
@@ -125,96 +107,24 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </div>
         </div>
 
-        {/* 6 Specialized Scientific Agents Collapsible Chat Section */}
-        <div>
-          {/* Clickable Header Target with Accessibility & Animated Chevron */}
-          <div
-            role="button"
-            tabIndex={0}
-            aria-expanded={isAgentsOpen}
-            aria-controls="ai-agents-list"
-            onClick={() => setIsAgentsOpen((prev) => !prev)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                setIsAgentsOpen((prev) => !prev)
-              }
-            }}
-            className="w-full text-[11px] font-semibold text-pm-muted-foreground uppercase tracking-wider px-3 mb-2 flex items-center justify-between cursor-pointer hover:text-pm-foreground select-none transition-colors rounded-lg py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-pm-ring/40"
-          >
+        {/* Luminar AI Research Engine Status Card */}
+        <div className="p-3.5 rounded-2xl bg-pm-muted/60 border border-pm-border space-y-2.5 shadow-xs">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span>AI AGENTS CHAT</span>
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-xs font-bold text-pm-foreground font-mono">RESEARCH ENGINE</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono text-emerald-500 font-semibold">6 ONLINE</span>
-              <motion.div
-                animate={{ rotate: isAgentsOpen ? 180 : 0 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-center justify-center text-pm-muted-foreground"
-              >
-                <ChevronDown className="w-3.5 h-3.5" />
-              </motion.div>
-            </div>
+            <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">ACTIVE</span>
           </div>
-
-          {/* Smooth Collapsible Agent List */}
-          <AnimatePresence initial={false}>
-            {isAgentsOpen && (
-              <motion.div
-                id="ai-agents-list"
-                key="ai-agents-list"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: 'easeInOut' }}
-                className="overflow-hidden"
-              >
-                <div className="bg-pm-muted/60 rounded-2xl border border-pm-border p-1.5 space-y-1">
-                  {agentPills.map((agent) => {
-                    const Icon = agent.icon
-                    const isCurrentChat =
-                      pathname.startsWith('/dashboard/chat') &&
-                      typeof window !== 'undefined' &&
-                      window.location.search.includes(`agent=${agent.id}`)
-
-                    return (
-                      <button
-                        key={agent.id}
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          router.push(`/dashboard/chat?agent=${agent.id}`)
-                          setIsOpen(false)
-                        }}
-                        className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all text-left group ${
-                          isCurrentChat
-                            ? 'bg-pm-frame border border-pm-ring shadow-sm font-semibold'
-                            : 'hover:bg-pm-frame hover:shadow-xs'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div
-                            className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
-                            style={{ backgroundColor: `${agent.color}20`, color: agent.color }}
-                          >
-                            <Icon className="w-3.5 h-3.5" />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-[11px] font-semibold text-pm-foreground truncate">{agent.name}</div>
-                            <div className="text-[9px] text-pm-muted-foreground truncate">{agent.desc}</div>
-                          </div>
-                        </div>
-                        <span
-                          className="w-1.5 h-1.5 rounded-full shrink-0 ml-1"
-                          style={{ backgroundColor: agent.color, boxShadow: `0 0 6px ${agent.color}` }}
-                        />
-                      </button>
-                    )
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <p className="text-[11px] text-pm-muted-foreground leading-relaxed">
+            6 Specialized Scientific Agents collaborate autonomously behind the scenes to verify citations, extract metrics, and synthesize findings.
+          </p>
+          <div className="flex items-center gap-1 pt-1 border-t border-pm-border/60">
+            {['#6366f1', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6'].map((col, idx) => (
+              <span key={idx} className="w-2 h-2 rounded-full" style={{ backgroundColor: col }} />
+            ))}
+            <span className="text-[10px] font-mono text-pm-muted-foreground ml-auto">All systems ready</span>
+          </div>
         </div>
 
         {/* Quick Launch CTA */}

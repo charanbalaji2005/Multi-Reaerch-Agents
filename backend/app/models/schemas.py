@@ -116,9 +116,10 @@ class TokenResponse(BaseModel):
     user: UserResponse
 
 
-# ─── Chat Response ──────────────────────────────────────────────
 class ChatRequest(BaseModel):
     question: str
+    file_text: Optional[str] = None
+    file_name: Optional[str] = None
 
 
 class ChatResponse(BaseModel):
