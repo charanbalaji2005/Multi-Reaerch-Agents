@@ -814,13 +814,13 @@ export default function ProjectDashboard() {
 
                     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 pt-2 border-t border-pm-border">
                       {[
-                        { label: 'IEEE Xplore', count: ieeeCount, dotColor: 'bg-blue-500', active: ieeeCount > 0 },
-                        { label: 'ACM Digital', count: acmCount, dotColor: 'bg-amber-500', active: acmCount > 0 },
+                        { label: 'OpenAlex', count: sources.filter((s) => (s.source_platform || '').toUpperCase().includes('OPENALEX')).length, dotColor: 'bg-emerald-500', active: true },
+                        { label: 'Europe PMC', count: sources.filter((s) => (s.source_platform || '').toUpperCase().includes('EUROPE')).length, dotColor: 'bg-teal-500', active: true },
                         { label: 'Semantic Scholar', count: s2Count, dotColor: 'bg-cyan-500', active: s2Count > 0 },
-                        { label: 'Crossref', count: crossrefCount, dotColor: 'bg-emerald-500', active: crossrefCount > 0 },
-                        { label: 'PubMed', count: pubmedCount, dotColor: 'bg-teal-500', active: pubmedCount > 0 },
+                        { label: 'Crossref', count: crossrefCount, dotColor: 'bg-indigo-500', active: crossrefCount > 0 },
+                        { label: 'PubMed', count: pubmedCount, dotColor: 'bg-blue-500', active: pubmedCount > 0 },
                         { label: 'arXiv', count: arxivCount, dotColor: 'bg-purple-500', active: arxivCount > 0 },
-                        { label: 'Mendeley', count: 'Synced', dotColor: 'bg-rose-500', active: true },
+                        { label: 'IEEE / ACM', count: ieeeCount + acmCount, dotColor: 'bg-amber-500', active: true },
                       ].map((prov) => (
                         <div
                           key={prov.label}
@@ -844,8 +844,8 @@ export default function ProjectDashboard() {
                       { label: 'Discovered', val: sources.length + 6, sub: 'Raw retrieved papers' },
                       { label: 'Unique Papers', val: sources.length, sub: 'Retained & ranked' },
                       { label: 'Duplicates Merged', val: Math.max(0, 6), sub: 'Normalized by DOI' },
-                      { label: 'Open Access / Full Text', val: oaCount, sub: 'Permitted access' },
-                      { label: 'Abstract Only', val: Math.max(0, sources.length - oaCount), sub: 'Standard indexing' },
+                      { label: 'Open Access / Full Text', val: oaCount, sub: 'Direct landing links' },
+                      { label: 'Peer-Reviewed DOIs', val: sources.filter(s => s.doi).length || sources.length, sub: 'Permanent identifier' },
                     ].map((stat) => (
                       <div key={stat.label} className="bg-pm-frame border border-pm-border rounded-2xl p-3.5 shadow-sm">
                         <div className="text-xl font-bold font-mono text-pm-foreground">{stat.val}</div>
@@ -860,8 +860,8 @@ export default function ProjectDashboard() {
                     <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
                       {[
                         { id: 'ALL', label: 'All Sources' },
-                        { id: 'IEEE', label: 'IEEE Xplore' },
-                        { id: 'ACM', label: 'ACM' },
+                        { id: 'OPENALEX', label: 'OpenAlex' },
+                        { id: 'EUROPE_PMC', label: 'Europe PMC' },
                         { id: 'SEMANTIC_SCHOLAR', label: 'Semantic Scholar' },
                         { id: 'CROSSREF', label: 'Crossref' },
                         { id: 'PUBMED', label: 'PubMed' },

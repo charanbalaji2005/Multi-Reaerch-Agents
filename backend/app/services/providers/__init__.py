@@ -12,14 +12,19 @@ from app.services.providers.semantic_scholar_provider import SemanticScholarProv
 from app.services.providers.arxiv_provider import ArxivProvider
 from app.services.providers.pubmed_provider import PubMedProvider
 
+from app.services.providers.openalex_provider import OpenAlexProvider
+from app.services.providers.europe_pmc_provider import EuropePMCProvider
+
 __all__ = [
     "ScholarlyProvider",
+    "OpenAlexProvider",
+    "EuropePMCProvider",
+    "PubMedProvider",
+    "ArxivProvider",
+    "CrossrefProvider",
+    "SemanticScholarProvider",
     "IEEEXploreProvider",
     "ACMDigitalLibraryProvider",
     "GoogleScholarDiscoveryProvider",
     "MendeleyProvider",
-    "CrossrefProvider",
-    "SemanticScholarProvider",
-    "ArxivProvider",
-    "PubMedProvider",
 ]

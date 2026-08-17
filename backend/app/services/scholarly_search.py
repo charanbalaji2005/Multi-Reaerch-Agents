@@ -14,14 +14,14 @@ from typing import List, Dict, Any, Tuple, Optional
 from app.models.schemas import ResearchSource, ScholarlySearchAudit
 from app.services.ai_client import generate_with_usage, clean_json_response
 from app.services.providers import (
-    IEEEXploreProvider,
-    ACMDigitalLibraryProvider,
-    GoogleScholarDiscoveryProvider,
-    MendeleyProvider,
+    OpenAlexProvider,
+    EuropePMCProvider,
+    PubMedProvider,
+    ArxivProvider,
     CrossrefProvider,
     SemanticScholarProvider,
-    ArxivProvider,
-    PubMedProvider,
+    ACMDigitalLibraryProvider,
+    IEEEXploreProvider,
 )
 
 
@@ -30,14 +30,14 @@ class ScholarlySearchEngine:
 
     def __init__(self):
         self.providers = [
+            OpenAlexProvider(),
+            EuropePMCProvider(),
             PubMedProvider(),
             ArxivProvider(),
             CrossrefProvider(),
             SemanticScholarProvider(),
             ACMDigitalLibraryProvider(),
             IEEEXploreProvider(),
-            GoogleScholarDiscoveryProvider(),
-            MendeleyProvider(),
         ]
 
     async def expand_queries(self, topic: str, sub_questions: Optional[List[str]] = None) -> List[str]:
