@@ -159,7 +159,7 @@ export function Header(): ReactNode {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.5, ease }}
-      className="fixed top-0 inset-x-0 mx-auto w-full max-w-5xl lg:max-w-6xl bg-white dark:bg-neutral-950 z-50 rounded-b-[2rem] shadow-xl border-x border-b border-black dark:border-white/20 max-[850px]:w-full max-[850px]:max-w-none max-[850px]:rounded-none max-[850px]:rounded-b-[2rem] max-[850px]:border-b-0"
+      className="fixed top-0 inset-x-0 mx-auto w-full max-w-5xl lg:max-w-6xl bg-pm-frame z-50 rounded-b-[2rem] shadow-lg border-b border-pm-border/20 max-[850px]:w-full max-[850px]:max-w-none max-[850px]:rounded-none max-[850px]:rounded-b-[2rem] max-[850px]:border-b-0"
     >
       <div className="h-20 max-[850px]:h-18 flex items-center justify-between px-6 sm:px-8">
         <button onClick={() => router.push('/')} className="flex items-center gap-2.5 shrink-0">

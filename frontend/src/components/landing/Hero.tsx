@@ -150,7 +150,7 @@ export function Hero(): ReactNode {
           transition={{ staggerChildren: 0.15, delayChildren: 0.2 }}
         >
           <motion.div
-            className="inline-flex items-center gap-1.5 pl-4 pr-3 py-1.5 rounded-xl border border-black/80 dark:border-white/20 bg-white dark:bg-neutral-900 text-pm-foreground text-sm font-medium mb-6 shadow-sm"
+            className="inline-flex items-center gap-1.5 pl-4 pr-3 py-1.5 rounded-xl border border-pm-border bg-pm-frame text-pm-foreground text-sm font-medium mb-6 shadow-sm"
             variants={fadeInUp}
             transition={{ duration: 0.8, ease }}
           >
