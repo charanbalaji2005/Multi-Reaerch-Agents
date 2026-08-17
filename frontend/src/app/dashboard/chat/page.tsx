@@ -397,6 +397,7 @@ function ResearchWorkspaceContent() {
     setReport(null)
     setActiveTab('chat')
     setAttachedFile(null)
+    setInputValue('')
     router.replace('/dashboard/chat', { scroll: false })
   }
 
@@ -407,17 +408,14 @@ function ResearchWorkspaceContent() {
       if (Array.isArray(data)) {
         setProjects(data)
         const targetId = searchParams.get('project')
-        if (targetId && selectedProjectId !== targetId) {
+        if (targetId) {
           setSelectedProjectId(targetId)
-        } else if (!targetId && selectedProjectId === null && data.length > 0) {
-          // If no specific project in URL and not explicitly cleared, load latest
-          setSelectedProjectId(data[0].id)
         }
       }
     } catch (err) {
       console.error('Error fetching research history:', err)
     }
-  }, [searchParams, selectedProjectId])
+  }, [searchParams])
 
   useEffect(() => {
     loadProjects()
