@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
@@ -60,8 +61,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       {/* Header / Brand */}
       <div className="px-5 py-4 border-b border-pm-border flex items-center justify-between">
         <button onClick={() => router.push('/')} className="flex items-center gap-2.5 text-left">
-          <div className="w-8 h-8 rounded-full bg-pm-foreground text-pm-background flex items-center justify-center shadow-sm">
-            <ShieldCheck className="w-4 h-4" />
+          <div className="w-8 h-8 rounded-xl bg-pm-background border border-pm-border flex items-center justify-center p-0.5 shadow-sm overflow-hidden">
+            <Image src="/logo.png" alt="ResearchGuard AI" width={28} height={28} className="w-full h-full object-contain" priority />
           </div>
           <div>
             <div className="text-sm font-bold text-pm-foreground tracking-tight flex items-center gap-1.5 leading-none">

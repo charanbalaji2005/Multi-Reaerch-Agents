@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { ArrowDownRight, ChevronDown, ShieldCheck } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
@@ -162,8 +163,8 @@ export function Header(): ReactNode {
     >
       <div className="h-20 max-[850px]:h-18 flex items-center justify-between px-6 sm:px-8">
         <button onClick={() => router.push('/')} className="flex items-center gap-2.5 shrink-0">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pm-foreground text-pm-background shadow-sm">
-            <ShieldCheck className="w-4 h-4" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-pm-frame border border-pm-border shadow-sm overflow-hidden p-0.5">
+            <Image src="/logo.png" alt="ResearchGuard AI Logo" width={32} height={32} className="w-full h-full object-contain" priority />
           </div>
           <span className="text-lg font-semibold text-pm-foreground tracking-tight leading-none">
             ResearchGuard AI

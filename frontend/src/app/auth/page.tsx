@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -295,8 +296,8 @@ export default function AuthPage() {
       >
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-pm-foreground text-pm-background mb-4 shadow-lg">
-            <ShieldCheck className="w-7 h-7" />
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-pm-frame border border-pm-border mb-4 shadow-xl overflow-hidden p-1">
+            <Image src="/logo.png" alt="ResearchGuard AI Logo" width={56} height={56} className="w-full h-full object-contain drop-shadow-md" priority />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-pm-foreground">
             ResearchGuard AI

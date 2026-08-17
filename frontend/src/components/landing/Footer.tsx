@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { ArrowRight, Mail, ShieldCheck, AlertTriangle } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -69,8 +70,8 @@ export function Footer(): ReactNode {
           <div className="flex items-start justify-between gap-12 max-[850px]:flex-col max-[850px]:gap-10">
             <div className="max-w-sm">
               <a href="#" className="flex items-center gap-2 mb-3" aria-label="ResearchGuard AI home">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-900 text-pm-accent">
-                  <ShieldCheck className="w-4 h-4" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900 overflow-hidden p-0.5 shadow-sm">
+                  <Image src="/logo.png" alt="ResearchGuard AI" width={28} height={28} className="w-full h-full object-contain" />
                 </div>
                 <span className="text-xl font-semibold text-neutral-900 leading-none">ResearchGuard AI</span>
               </a>

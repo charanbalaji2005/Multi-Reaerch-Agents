@@ -7,7 +7,14 @@ export const metadata: Metadata = {
   title: 'ResearchGuard AI — Multi-Agent Scientific Evidence & Citation Verification',
   description:
     'Autonomous AI agents research, extract evidence, verify citations, and stress-test scientific claims before generating an auditable report.',
-  icons: { icon: '/favicon.ico' },
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/logo.png', type: 'image/png' },
+    ],
+    apple: [{ url: '/logo.png' }],
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
