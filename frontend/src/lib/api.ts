@@ -74,6 +74,10 @@ export const api = {
     axiosInstance.post(`/research/${id}/chat`, { question }).then((r) => r.data),
   agentChat: (data: { agent: string; question: string; project_id?: string }) =>
     axiosInstance.post('/research/agent-chat', data).then((r) => r.data),
+  getAgentChatHistory: (agent: string, projectId?: string) =>
+    axiosInstance
+      .get('/research/agent-chat/history', { params: { agent, project_id: projectId } })
+      .then((r) => r.data),
 }
 
 // Backward-compatible individual API maps

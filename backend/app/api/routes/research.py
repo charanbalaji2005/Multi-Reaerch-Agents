@@ -271,6 +271,30 @@ async def chat_with_research(project_id: str, request: ChatRequest, current_user
     )
 
     answer = await generate(system=system_prompt, user_prompt=request.question, max_tokens=1500)
+    
+    # Persist project chat to database
+    try:
+        await db.agent_chats.insert_many([
+            {
+                "user_id": str(current_user["_id"]),
+                "project_id": project_id,
+                "agent": "co-pilot",
+                "role": "user",
+                "content": request.question,
+                "timestamp": datetime.utcnow(),
+            },
+            {
+                "user_id": str(current_user["_id"]),
+                "project_id": project_id,
+                "agent": "co-pilot",
+                "role": "assistant",
+                "content": answer,
+                "timestamp": datetime.utcnow(),
+            }
+        ])
+    except Exception as e:
+        print(f"Chat persistence warning: {e}")
+
     return ChatResponse(answer=answer)
 
 
@@ -279,18 +303,18 @@ async def chat_with_specialized_agent(
     request: dict,
     current_user: dict = Depends(get_current_user)
 ):
-    """Direct conversation with any of the 6 specialized scientific agents."""
+    """Direct conversation with any of the 6 specialized scientific agents with persistent DB history."""
     agent_type = request.get("agent", "planner")
     question = request.get("question", "")
     project_id = request.get("project_id")
 
-    if not question.trim() if hasattr(question, "trim") else not question.strip():
+    if not question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty")
 
+    db = get_db()
     context_str = ""
     if project_id:
         try:
-            db = get_db()
             project = await db.research_projects.find_one({"_id": obj_id(project_id), "user_id": str(current_user["_id"])})
             if project:
                 context_str = f"Current Project Context: {project.get('topic')}\n"
@@ -300,34 +324,39 @@ async def chat_with_specialized_agent(
     AGENT_PROMPTS = {
         "planner": (
             "You are the Lead Scientific Research Planner Agent for ResearchGuard AI. "
-            "Your role is to formulate Boolean search strategies, define target cohorts, establish inclusion/exclusion criteria, "
-            "and construct research matrices with utmost academic rigor. "
-            "Always organize answers with clear structure, Markdown tables where relevant, and Boolean search queries."
+            "Your scope is strictly academic and scientific research planning. "
+            "Formulate Boolean search strategies, define target cohorts, establish inclusion/exclusion criteria, "
+            "and construct research matrices. Organize answers with Markdown tables and Boolean queries. "
+            "Always include direct academic discovery links (e.g. PubMed https://pubmed.ncbi.nlm.nih.gov/?term=..., arXiv https://arxiv.org/abs/..., DOI https://doi.org/...). "
+            "If asked off-topic non-research questions, politely decline and refocus on scientific research."
         ),
         "literature": (
             "You are the Academic Literature Search Agent for ResearchGuard AI. "
-            "You specialize in PubMed MeSH queries, arXiv Atom searches, IEEE Xplore, Crossref DOI registries, and Semantic Scholar. "
-            "Provide precise academic references, Boolean operators, DOI syntax, and source quality classifications."
+            "Your scope is strictly scientific literature retrieval. "
+            "Provide precise academic references, Boolean operators, MeSH queries, DOI links (https://doi.org/...), "
+            "PubMed links (https://pubmed.ncbi.nlm.nih.gov/...), and arXiv links (https://arxiv.org/abs/...). "
+            "Classify source quality and include clickable URLs for every referenced study."
         ),
         "evidence": (
             "You are the Empirical Evidence Extraction Agent for ResearchGuard AI. "
-            "You specialize in extracting statistical parameters: hazard ratios, odds ratios, p-values, confidence intervals (95% CI), "
-            "sample sizes (N), and cohort endpoints. Format study comparisons using Markdown tables."
+            "Your scope is strictly empirical data analysis: hazard ratios, odds ratios, p-values, confidence intervals (95% CI), "
+            "sample sizes (N), and quantitative endpoints. Format study comparisons using Markdown tables and provide source DOI/PubMed links."
         ),
         "verifier": (
             "You are the Citation Grounding & Verification Agent for ResearchGuard AI. "
-            "Your role is to audit claims against primary literature, check for fake or hallucinated DOIs, verify if the cited text "
-            "genuinely supports the conclusion, and assign calibration verdicts: SUPPORTED, PARTIALLY_SUPPORTED, CONTRADICTED, or UNSUPPORTED."
+            "Your scope is strictly auditing claims against primary literature, validating DOIs, detecting fake citations, "
+            "and assigning verdicts: SUPPORTED, PARTIALLY_SUPPORTED, CONTRADICTED, or UNSUPPORTED. "
+            "Always cite full DOIs with active links (https://doi.org/...) and verify grounding."
         ),
         "critic": (
             "You are the Adversarial Peer Review Critic Agent for ResearchGuard AI. "
-            "Your role is to aggressively stress-test methodology, detect correlation vs causation fallacies, identify small sample sizes, "
-            "point out missing control groups, publication biases, and confounding variables. Be critical, constructive, and uncompromising."
+            "Your scope is strictly methodological stress-testing, identifying confounding variables, survival bias, "
+            "correlation vs causation fallacies, and sample size limitations. Be critical, constructive, and scientifically grounded."
         ),
         "writer": (
             "You are the Scientific Synthesis & Report Writer Agent for ResearchGuard AI. "
-            "You synthesize audited evidence into executive summaries, key findings, and structured scientific dossiers. "
-            "Use formal academic tone, clear headings, Markdown tables, and verified citations."
+            "Your scope is strictly synthesizing audited scientific evidence into structured IMRaD reports and executive briefings. "
+            "Use formal academic tone, structured headings, Markdown tables, and verified citations with links."
         ),
     }
 
@@ -336,7 +365,55 @@ async def chat_with_specialized_agent(
         system_prompt += f"\n\n{context_str}"
 
     answer = await generate(system=system_prompt, user_prompt=question, max_tokens=1800)
+
+    # Persist chat history to database
+    try:
+        await db.agent_chats.insert_many([
+            {
+                "user_id": str(current_user["_id"]),
+                "project_id": project_id,
+                "agent": agent_type,
+                "role": "user",
+                "content": question,
+                "timestamp": datetime.utcnow(),
+            },
+            {
+                "user_id": str(current_user["_id"]),
+                "project_id": project_id,
+                "agent": agent_type,
+                "role": "assistant",
+                "content": answer,
+                "timestamp": datetime.utcnow(),
+            }
+        ])
+    except Exception as e:
+        print(f"Agent chat persistence warning: {e}")
+
     return ChatResponse(answer=answer)
+
+
+@router.get("/agent-chat/history")
+async def get_agent_chat_history(
+    agent: str = "planner",
+    project_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Retrieve saved chat history for this user and agent from MongoDB."""
+    db = get_db()
+    query = {"user_id": str(current_user["_id"]), "agent": agent}
+    if project_id:
+        query["project_id"] = project_id
+    cursor = db.agent_chats.find(query).sort("timestamp", 1).limit(50)
+    messages = []
+    async for doc in cursor:
+        messages.append({
+            "id": str(doc["_id"]),
+            "role": doc["role"],
+            "content": doc["content"],
+            "timestamp": doc["timestamp"].isoformat() if isinstance(doc.get("timestamp"), datetime) else str(doc.get("timestamp")),
+            "agent": doc.get("agent"),
+        })
+    return messages
 
 
 @router.delete("/{project_id}")
