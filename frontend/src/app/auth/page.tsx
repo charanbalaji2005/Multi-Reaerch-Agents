@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Eye, EyeOff, ShieldCheck, ArrowRight, Mail, Lock, User, ArrowLeft } from 'lucide-react'
@@ -48,31 +48,17 @@ export default function AuthPage() {
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const { setAuth, user } = useAuthStore()
   const router = useRouter()
+  const tokenClientRef = useRef<any>(null)
 
   useEffect(() => {
     if (user) router.push('/dashboard')
   }, [user, router])
 
-  // Google OAuth Callback Handler
-  const handleGoogleCredentialResponse = useCallback(
-    async (response: any) => {
+  // Sync Google profile with backend
+  const authenticateGoogleUser = useCallback(
+    async (googleUser: { email: string; name?: string; sub: string; picture?: string }) => {
       setGoogleLoading(true)
       try {
-        if (!response.credential) {
-          throw new Error('No credential received from Google')
-        }
-
-        // Decode JWT token payload
-        const base64Url = response.credential.split('.')[1]
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-        const jsonPayload = decodeURIComponent(
-          atob(base64)
-            .split('')
-            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-            .join('')
-        )
-        const googleUser = JSON.parse(jsonPayload)
-
         const email = googleUser.email
         const name = googleUser.name || email.split('@')[0]
         const oauthPassword = `GAuth_${googleUser.sub}_RG2026!`
@@ -87,7 +73,6 @@ export default function AuthPage() {
           try {
             authData = await authAPI.register({ name, email, password: oauthPassword })
           } catch (regErr: any) {
-            // If already registered with another password, try logging in
             throw new Error(regErr.response?.data?.detail || 'Google authentication failed to sync with database')
           }
         }
@@ -114,17 +99,94 @@ export default function AuthPage() {
     [router, setAuth]
   )
 
-  // Initialize Google Identity Services SDK
+  // Handle GIS Credential (JWT)
+  const handleGoogleCredentialResponse = useCallback(
+    async (response: any) => {
+      if (!response.credential) return
+      try {
+        const base64Url = response.credential.split('.')[1]
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        )
+        const googleUser = JSON.parse(jsonPayload)
+        await authenticateGoogleUser(googleUser)
+      } catch (e: any) {
+        toast.error(e.message || 'Failed to decode Google credentials')
+      }
+    },
+    [authenticateGoogleUser]
+  )
+
+  // Initialize Google SDK & Parse potential redirect hash
   useEffect(() => {
-    const initializeGoogleGSI = () => {
-      if (typeof window !== 'undefined' && window.google?.accounts?.id) {
-        try {
-          window.google.accounts.id.initialize({
-            client_id: GOOGLE_CLIENT_ID,
-            callback: handleGoogleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true,
+    // 1. Check if returning from redirect with hash (#id_token=... or #access_token=...)
+    if (typeof window !== 'undefined' && window.location.hash) {
+      try {
+        const hash = window.location.hash.substring(1)
+        const params = new URLSearchParams(hash)
+        const idToken = params.get('id_token')
+        const accessToken = params.get('access_token')
+
+        if (idToken) {
+          handleGoogleCredentialResponse({ credential: idToken })
+          // Clean hash from URL
+          window.history.replaceState(null, '', window.location.pathname)
+        } else if (accessToken) {
+          fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+            headers: { Authorization: `Bearer ${accessToken}` },
           })
+            .then((r) => r.json())
+            .then((userInfo) => {
+              if (userInfo?.email) {
+                authenticateGoogleUser(userInfo)
+                window.history.replaceState(null, '', window.location.pathname)
+              }
+            })
+            .catch(console.error)
+        }
+      } catch (e) {
+        console.warn('Hash parsing error:', e)
+      }
+    }
+
+    // 2. Initialize Google Identity Services
+    const initializeGoogleGSI = () => {
+      if (typeof window !== 'undefined' && window.google?.accounts) {
+        try {
+          if (window.google.accounts.id) {
+            window.google.accounts.id.initialize({
+              client_id: GOOGLE_CLIENT_ID,
+              callback: handleGoogleCredentialResponse,
+              auto_select: false,
+              cancel_on_tap_outside: true,
+            })
+          }
+
+          if (window.google.accounts.oauth2) {
+            tokenClientRef.current = window.google.accounts.oauth2.initTokenClient({
+              client_id: GOOGLE_CLIENT_ID,
+              scope: 'email profile openid',
+              callback: async (tokenResponse: any) => {
+                if (tokenResponse?.access_token) {
+                  setGoogleLoading(true)
+                  try {
+                    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                      headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                    })
+                    const googleUser = await res.json()
+                    await authenticateGoogleUser(googleUser)
+                  } catch (err: any) {
+                    toast.error('Failed to fetch Google profile')
+                    setGoogleLoading(false)
+                  }
+                }
+              },
+            })
+          }
         } catch (e) {
           console.warn('Google GSI initialization error:', e)
         }
@@ -142,14 +204,15 @@ export default function AuthPage() {
     } else {
       initializeGoogleGSI()
     }
-  }, [handleGoogleCredentialResponse])
+  }, [handleGoogleCredentialResponse, authenticateGoogleUser])
 
-  // Trigger Google Login
+  // Trigger Google Sign-In
   const handleGoogleSignInClick = () => {
-    if (typeof window !== 'undefined' && window.google?.accounts?.id) {
+    if (tokenClientRef.current) {
+      tokenClientRef.current.requestAccessToken()
+    } else if (typeof window !== 'undefined' && window.google?.accounts?.id) {
       window.google.accounts.id.prompt((notification: any) => {
         if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // Fallback to implicit OAuth popup if One-Tap is blocked
           const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(
             window.location.origin + '/auth'
           )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${Date.now()}`
@@ -157,7 +220,10 @@ export default function AuthPage() {
         }
       })
     } else {
-      toast.error('Google Sign-In SDK is loading, please try in a moment.')
+      const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(
+        window.location.origin + '/auth'
+      )}&response_type=token%20id_token&scope=openid%20email%20profile&nonce=${Date.now()}`
+      window.location.href = oauthUrl
     }
   }
 
@@ -273,7 +339,7 @@ export default function AuthPage() {
               ) : (
                 <GoogleIcon />
               )}
-              <span>Continue with Google</span>
+              <span>{googleLoading ? 'Connecting to Google...' : 'Continue with Google'}</span>
             </button>
           </div>
 
