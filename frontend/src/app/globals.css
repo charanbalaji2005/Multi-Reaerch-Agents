@@ -50,13 +50,13 @@
   --pm-phone-screen: #f5f5f5;
 }
 
-/* Palletman "site frame" chrome — thin border + corner marks around the viewport */
+/* Palletman "site frame" chrome — black outer border + corner marks around the viewport */
 .pm-site-frame {
   display: block;
   position: fixed;
   z-index: 40;
   pointer-events: none;
-  background-color: var(--pm-frame);
+  background-color: #000000;
 }
 .pm-site-frame--top { top: 0; left: 0; right: 0; height: 10px; }
 .pm-site-frame--bottom { bottom: 0; left: 0; right: 0; height: 10px; }
@@ -68,7 +68,7 @@
   position: fixed;
   z-index: 39;
   pointer-events: none;
-  color: var(--pm-frame);
+  color: #000000;
 }
 .pm-site-corner--top-left { top: 10px; left: 10px; transform: rotate(90deg); }
 .pm-site-corner--top-right { top: 10px; right: 10px; transform: rotate(180deg); }
