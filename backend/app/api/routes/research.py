@@ -274,6 +274,71 @@ async def chat_with_research(project_id: str, request: ChatRequest, current_user
     return ChatResponse(answer=answer)
 
 
+@router.post("/agent-chat", response_model=ChatResponse)
+async def chat_with_specialized_agent(
+    request: dict,
+    current_user: dict = Depends(get_current_user)
+):
+    """Direct conversation with any of the 6 specialized scientific agents."""
+    agent_type = request.get("agent", "planner")
+    question = request.get("question", "")
+    project_id = request.get("project_id")
+
+    if not question.trim() if hasattr(question, "trim") else not question.strip():
+        raise HTTPException(status_code=400, detail="Question cannot be empty")
+
+    context_str = ""
+    if project_id:
+        try:
+            db = get_db()
+            project = await db.research_projects.find_one({"_id": obj_id(project_id), "user_id": str(current_user["_id"])})
+            if project:
+                context_str = f"Current Project Context: {project.get('topic')}\n"
+        except Exception:
+            pass
+
+    AGENT_PROMPTS = {
+        "planner": (
+            "You are the Lead Scientific Research Planner Agent for ResearchGuard AI. "
+            "Your role is to formulate Boolean search strategies, define target cohorts, establish inclusion/exclusion criteria, "
+            "and construct research matrices with utmost academic rigor. "
+            "Always organize answers with clear structure, Markdown tables where relevant, and Boolean search queries."
+        ),
+        "literature": (
+            "You are the Academic Literature Search Agent for ResearchGuard AI. "
+            "You specialize in PubMed MeSH queries, arXiv Atom searches, IEEE Xplore, Crossref DOI registries, and Semantic Scholar. "
+            "Provide precise academic references, Boolean operators, DOI syntax, and source quality classifications."
+        ),
+        "evidence": (
+            "You are the Empirical Evidence Extraction Agent for ResearchGuard AI. "
+            "You specialize in extracting statistical parameters: hazard ratios, odds ratios, p-values, confidence intervals (95% CI), "
+            "sample sizes (N), and cohort endpoints. Format study comparisons using Markdown tables."
+        ),
+        "verifier": (
+            "You are the Citation Grounding & Verification Agent for ResearchGuard AI. "
+            "Your role is to audit claims against primary literature, check for fake or hallucinated DOIs, verify if the cited text "
+            "genuinely supports the conclusion, and assign calibration verdicts: SUPPORTED, PARTIALLY_SUPPORTED, CONTRADICTED, or UNSUPPORTED."
+        ),
+        "critic": (
+            "You are the Adversarial Peer Review Critic Agent for ResearchGuard AI. "
+            "Your role is to aggressively stress-test methodology, detect correlation vs causation fallacies, identify small sample sizes, "
+            "point out missing control groups, publication biases, and confounding variables. Be critical, constructive, and uncompromising."
+        ),
+        "writer": (
+            "You are the Scientific Synthesis & Report Writer Agent for ResearchGuard AI. "
+            "You synthesize audited evidence into executive summaries, key findings, and structured scientific dossiers. "
+            "Use formal academic tone, clear headings, Markdown tables, and verified citations."
+        ),
+    }
+
+    system_prompt = AGENT_PROMPTS.get(agent_type, AGENT_PROMPTS["planner"])
+    if context_str:
+        system_prompt += f"\n\n{context_str}"
+
+    answer = await generate(system=system_prompt, user_prompt=question, max_tokens=1800)
+    return ChatResponse(answer=answer)
+
+
 @router.delete("/{project_id}")
 async def delete_project(project_id: str, current_user: dict = Depends(get_current_user)):
     db = get_db()

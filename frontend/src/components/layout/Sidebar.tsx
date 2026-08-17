@@ -37,18 +37,19 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   }
 
   const agentPills = [
-    { name: 'Research Planner', icon: Compass, color: '#6366f1' },
-    { name: 'Literature Search', icon: BookOpen, color: '#3b82f6' },
-    { name: 'Evidence Extraction', icon: Dna, color: '#06b6d4' },
-    { name: 'Citation Verifier', icon: ShieldCheck, color: '#10b981' },
-    { name: 'Research Critic', icon: AlertTriangle, color: '#f59e0b' },
-    { name: 'Report Writer', icon: FileCheck2, color: '#8b5cf6' },
+    { id: 'planner', name: 'Research Planner', icon: Compass, color: '#6366f1', desc: 'Queries & specs' },
+    { id: 'literature', name: 'Literature Search', icon: BookOpen, color: '#3b82f6', desc: 'PubMed & arXiv' },
+    { id: 'evidence', name: 'Evidence Extraction', icon: Dna, color: '#06b6d4', desc: 'Statistical data' },
+    { id: 'verifier', name: 'Citation Verifier', icon: ShieldCheck, color: '#10b981', desc: 'Audits citations' },
+    { id: 'critic', name: 'Research Critic', icon: AlertTriangle, color: '#f59e0b', desc: 'Stress-test claims' },
+    { id: 'writer', name: 'Report Writer', icon: FileCheck2, color: '#8b5cf6', desc: 'Structured reports' },
   ]
 
   const navItems = [
     { href: '/dashboard', label: 'Mission Control', icon: LayoutDashboard, exact: true },
     { href: '/dashboard/research', label: 'New Audit', icon: FlaskConical, exact: true },
     { href: '/dashboard/projects', label: 'Research Projects', icon: FileText, exact: false },
+    { href: '/dashboard/chat', label: 'AI Agents Chat Hub', icon: Sparkles, exact: false, badge: 'Live' },
   ]
 
   return (
@@ -100,43 +101,69 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     router.push(item.href)
                     setIsOpen(false)
                   }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                     active
                       ? 'bg-pm-foreground text-pm-background shadow-sm font-semibold'
                       : 'text-pm-muted-foreground hover:text-pm-foreground hover:bg-pm-muted'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{item.label}</span>
+                  <div className="flex items-center gap-3">
+                    <Icon className="w-4 h-4" />
+                    <span>{item.label}</span>
+                  </div>
+                  {item.badge && (
+                    <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-pm-accent text-black uppercase">
+                      {item.badge}
+                    </span>
+                  )}
                 </button>
               )
             })}
           </div>
         </div>
 
-        {/* 6 Specialized Scientific Agents Status */}
+        {/* 6 Specialized Scientific Agents Chat Section */}
         <div>
           <div className="text-[11px] font-semibold text-pm-muted-foreground uppercase tracking-wider px-3 mb-2 flex items-center justify-between">
-            <span>Specialized Agents</span>
-            <span className="w-2 h-2 rounded-full bg-pm-accent animate-pulse" />
+            <span>AI Agents Chat</span>
+            <span className="text-[10px] font-mono text-pm-accent font-semibold">6 Online</span>
           </div>
-          <div className="bg-pm-muted/60 rounded-xl border border-pm-border p-2 space-y-1">
+          <div className="bg-pm-muted/60 rounded-2xl border border-pm-border p-1.5 space-y-1">
             {agentPills.map((agent) => {
               const Icon = agent.icon
+              const isCurrentChat = pathname.startsWith('/dashboard/chat') && typeof window !== 'undefined' && window.location.search.includes(`agent=${agent.id}`)
+
               return (
-                <div
-                  key={agent.name}
-                  className="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-pm-foreground/90 hover:bg-pm-frame transition-colors"
+                <button
+                  key={agent.id}
+                  type="button"
+                  onClick={() => {
+                    router.push(`/dashboard/chat?agent=${agent.id}`)
+                    setIsOpen(false)
+                  }}
+                  className={`w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs transition-all text-left group ${
+                    isCurrentChat
+                      ? 'bg-pm-frame border border-pm-ring shadow-sm font-semibold'
+                      : 'hover:bg-pm-frame hover:shadow-xs'
+                  }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-3.5 h-3.5" style={{ color: agent.color }} />
-                    <span className="text-[11px] font-medium">{agent.name}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
+                      style={{ backgroundColor: `${agent.color}20`, color: agent.color }}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-[11px] font-semibold text-pm-foreground truncate">{agent.name}</div>
+                      <div className="text-[9px] text-pm-muted-foreground truncate">{agent.desc}</div>
+                    </div>
                   </div>
                   <span
-                    className="w-1.5 h-1.5 rounded-full"
+                    className="w-1.5 h-1.5 rounded-full shrink-0 ml-1"
                     style={{ backgroundColor: agent.color, boxShadow: `0 0 6px ${agent.color}` }}
                   />
-                </div>
+                </button>
               )
             })}
           </div>

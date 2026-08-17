@@ -72,6 +72,8 @@ export const api = {
   deleteProject: (id: string) => axiosInstance.delete(`/research/${id}`).then((r) => r.data),
   chat: (id: string, question: string) =>
     axiosInstance.post(`/research/${id}/chat`, { question }).then((r) => r.data),
+  agentChat: (data: { agent: string; question: string; project_id?: string }) =>
+    axiosInstance.post('/research/agent-chat', data).then((r) => r.data),
 }
 
 // Backward-compatible individual API maps
