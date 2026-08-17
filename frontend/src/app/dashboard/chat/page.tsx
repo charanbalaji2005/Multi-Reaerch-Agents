@@ -879,33 +879,33 @@ function ResearchWorkspaceContent() {
         {/* ── RIGHT COLUMN: ACTIVE RESEARCH WORKSPACE (Flex-1) ── */}
         <div className="flex-1 bg-pm-frame border border-pm-border rounded-3xl flex flex-col shadow-xs overflow-hidden min-w-0">
           {/* Active Research Header */}
-          <div className="px-5 py-3.5 border-b border-pm-border bg-pm-frame/90 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-2xl bg-white border border-[#E2E8F0] shadow-xs flex items-center justify-center p-1 shrink-0 overflow-hidden">
-                <Image src="/logo.png" alt="Luminar AI" width={32} height={32} className="w-full h-full object-contain" priority />
+          <div className="px-5 py-3.5 border-b border-pm-border bg-pm-frame/90 backdrop-blur-md flex items-center justify-between gap-4 shrink-0">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              <div className="w-9 h-9 rounded-xl bg-white border border-[#E2E8F0] shadow-xs flex items-center justify-center p-1 shrink-0 overflow-hidden">
+                <Image src="/logo.png" alt="Luminar AI" width={28} height={28} className="w-full h-full object-contain" priority />
               </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm font-bold text-pm-foreground tracking-tight truncate max-w-xs sm:max-w-md">
-                    {activeProject?.topic || 'General Scientific AI Workspace'}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-bold text-pm-foreground tracking-tight truncate">
+                    {activeProject?.topic || 'Luminar AI Research Co-Pilot'}
                   </span>
                   {activeProject ? (
                     <button
                       type="button"
                       onClick={handleStartNewChat}
                       title="Clear context and switch to fresh chat"
-                      className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold hover:bg-rose-500/20 transition-colors flex items-center gap-1 shrink-0"
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 font-bold hover:bg-rose-500/20 transition-colors flex items-center gap-1 shrink-0 whitespace-nowrap"
                     >
                       <X className="w-2.5 h-2.5" />
                       <span>Detach Context</span>
                     </button>
                   ) : (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-pm-accent text-black font-bold uppercase shrink-0">
+                    <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-pm-accent text-black font-bold uppercase shrink-0 whitespace-nowrap">
                       FRESH MODE
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-3 text-[11px] text-pm-muted-foreground font-mono mt-0.5">
+                <div className="flex items-center gap-3 text-[11px] text-pm-muted-foreground font-mono mt-0.5 truncate">
                   {activeProject ? (
                     <>
                       <span>Sources: {sources.length}</span>
@@ -919,61 +919,39 @@ function ResearchWorkspaceContent() {
                       ) : null}
                     </>
                   ) : (
-                    <span>No previous context attached · General reasoning</span>
+                    <span>General Reasoning Mode · No previous context</span>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Research Workspace Tabs & Project Quick Selector */}
-            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-              {projects.length > 0 && !activeProject && (
-                <select
-                  value=""
-                  onChange={(e) => {
-                    if (e.target.value) {
-                      setSelectedProjectId(e.target.value)
-                      router.replace(`/dashboard/chat?project=${e.target.value}`, { scroll: false })
-                    }
-                  }}
-                  className="px-2.5 py-1.5 rounded-xl text-xs bg-pm-muted border border-pm-border text-pm-foreground font-medium focus:outline-none focus:border-pm-ring"
-                >
-                  <option value="" disabled>Choose previous research...</option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.topic} ({new Date(p.created_at || Date.now()).toLocaleDateString()})
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              <div className="flex items-center gap-1 bg-pm-muted p-1 rounded-2xl shrink-0 self-start sm:self-auto">
-                {[
-                  { id: 'chat', label: 'Chat', icon: MessageSquare },
-                  { id: 'evidence', label: `Evidence (${evidence.length})`, icon: Dna },
-                  { id: 'sources', label: `Sources (${sources.length})`, icon: BookOpen },
-                  { id: 'files', label: `Files (${uploadedFiles.length})`, icon: FileText },
-                  { id: 'report', label: 'Report', icon: FileCode },
-                ].map((tab) => {
-                  const Icon = tab.icon
-                  const isActive = activeTab === tab.id
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setActiveTab(tab.id as any)}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
-                        isActive
-                          ? 'bg-pm-foreground text-pm-background shadow-xs'
-                          : 'text-pm-muted-foreground hover:text-pm-foreground'
-                      }`}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      <span>{tab.label}</span>
-                    </button>
-                  )
-                })}
-              </div>
+            {/* Research Workspace Tabs */}
+            <div className="flex items-center gap-1 bg-pm-muted p-1 rounded-2xl shrink-0">
+              {[
+                { id: 'chat', label: 'Chat', icon: MessageSquare },
+                { id: 'evidence', label: `Evidence (${evidence.length})`, icon: Dna },
+                { id: 'sources', label: `Sources (${sources.length})`, icon: BookOpen },
+                { id: 'files', label: `Files (${uploadedFiles.length})`, icon: FileText },
+                { id: 'report', label: 'Report', icon: FileCode },
+              ].map((tab) => {
+                const Icon = tab.icon
+                const isActive = activeTab === tab.id
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                      isActive
+                        ? 'bg-pm-foreground text-pm-background shadow-xs'
+                        : 'text-pm-muted-foreground hover:text-pm-foreground'
+                    }`}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    <span>{tab.label}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
 
