@@ -20,14 +20,14 @@ const fadeInScale = {
 }
 
 const academicLogos: LogoItem[] = [
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">PubMed / NCBI</span> },
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">arXiv.org</span> },
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">Semantic Scholar</span> },
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">Crossref API</span> },
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">The Lancet</span> },
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">IEEE Xplore</span> },
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">PLoS ONE</span> },
-  { node: <span className="text-[0.9em] font-semibold tracking-tight">bioRxiv / medRxiv</span> },
+  { node: <span className="text-[0.9em] font-bold tracking-tight text-white drop-shadow-sm">PubMed / NCBI</span> },
+  { node: <span className="text-[0.9em] font-bold tracking-tight text-white drop-shadow-sm">arXiv.org</span> },
+  { node: <span className="text-[0.9em] font-bold tracking-tight text-white drop-shadow-sm">Semantic Scholar</span> },
+  { node: <span className="text-[0.9em] font-bold tracking-tight text-white drop-shadow-sm">Crossref API</span> },
+  { node: <span className="text-[0.9em] font-bold tracking-tight text-white drop-shadow-sm">The Lancet</span> },
+  { node: <span className="text-[0.9em] font-bold tracking-tight text-white drop-shadow-sm">IEEE Xplore</span> },
+  { node: <span className="text-[0.9em] font-bold tracking-tight text-white drop-shadow-sm">PLoS ONE</span> },
+  { node: <span className="text-[0.9em] font-bold tracking-tight text-white drop-shadow-sm">bioRxiv / medRxiv</span> },
 ]
 
 const PARALLAX_INTENSITY = 20
@@ -209,7 +209,7 @@ export function Hero(): ReactNode {
       </motion.div>
 
       <motion.div className="relative z-10 pt-24 pb-12" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8, delay: 1, ease }}>
-        <p className="text-center text-xs text-pm-muted-foreground font-mono uppercase tracking-widest mb-4">
+        <p className="text-center text-xs text-white font-mono uppercase tracking-widest mb-4 drop-shadow-sm">
           Direct academic repositories & publication graphs
         </p>
         <LogoLoop logos={academicLogos} speed={60} logoHeight={42} gap={124} />

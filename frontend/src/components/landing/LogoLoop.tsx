@@ -180,7 +180,7 @@ export function LogoLoop({
                       {item.node}
                     </a>
                   ) : (
-                    <span className="inline-flex items-center text-pm-muted-foreground">{item.node}</span>
+                    <span className="inline-flex items-center text-white drop-shadow-sm">{item.node}</span>
                   )}
                 </li>
               ))}
