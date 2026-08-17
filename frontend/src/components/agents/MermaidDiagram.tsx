@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { Dna, ArrowRight, GitBranch, Layers, CheckCircle2 } from 'lucide-react'
+import { Dna, ArrowRight, GitBranch, Layers, CheckCircle2, Download, Eye, Maximize2, X, Copy, Check } from 'lucide-react'
 
 interface Props {
   code: string
@@ -30,10 +30,13 @@ interface ParsedEdge {
 export default function MermaidDiagram({ code, title, diagramType }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   const [renderMode, setRenderMode] = useState<'mermaid' | 'svg_fallback'>('svg_fallback')
+  const [svgString, setSvgString] = useState<string>('')
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
   const cleanCode = sanitizeMermaid(code)
   const isMindmap = diagramType === 'mindmap' || cleanCode.startsWith('mindmap')
 
-  // Parse structured concepts cleanly without character stripping bugs
+  // Parse structured concepts cleanly
   const parseGraph = (text: string) => {
     const lines = text.split('\n').map((l) => l.trim()).filter(Boolean)
     const nodes: ParsedNode[] = []
@@ -41,8 +44,6 @@ export default function MermaidDiagram({ code, title, diagramType }: Props) {
 
     if (isMindmap) {
       let rootLabel = ''
-      const hierarchy: { level: number; label: string }[] = []
-
       for (const line of lines) {
         if (line.startsWith('mindmap')) continue
 
@@ -53,7 +54,6 @@ export default function MermaidDiagram({ code, title, diagramType }: Props) {
           continue
         }
 
-        // Clean quotes and parentheses
         const cleanLine = line
           .replace(/^\s+/, '')
           .replace(/^[()+*-]\s*/, '')
@@ -61,7 +61,6 @@ export default function MermaidDiagram({ code, title, diagramType }: Props) {
           .trim()
 
         if (cleanLine && cleanLine.length > 1) {
-          // Determine level by leading whitespace
           const rawIndent = (line.match(/^\s*/) || [''])[0].length
           const level = Math.max(1, Math.min(3, Math.floor(rawIndent / 2) || 1))
           nodes.push({
@@ -92,7 +91,6 @@ export default function MermaidDiagram({ code, title, diagramType }: Props) {
     for (const line of lines) {
       if (line.startsWith('graph') || line.startsWith('flowchart')) continue
 
-      // Match A["Label 1"] --> B["Label 2"]
       const edgeMatch = line.match(/(.+?)\s*(?:-->|---|->)\s*(.+)/)
       if (edgeMatch) {
         const parseNodePart = (part: string) => {
@@ -175,6 +173,7 @@ export default function MermaidDiagram({ code, title, diagramType }: Props) {
         const { svg } = await mermaid.render(id, cleanCode)
         if (ref.current && isMounted && svg && svg.includes('<svg')) {
           ref.current.innerHTML = svg
+          setSvgString(svg)
           setRenderMode('mermaid')
         } else {
           setRenderMode('svg_fallback')
@@ -192,12 +191,63 @@ export default function MermaidDiagram({ code, title, diagramType }: Props) {
     }
   }, [cleanCode])
 
+  // Download SVG file
+  const handleDownloadSVG = () => {
+    const blob = new Blob([svgString || cleanCode], { type: 'image/svg+xml' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${(title || 'scientific-diagram').toLowerCase().replace(/\s+/g, '-')}.svg`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  // Copy raw mermaid
+  const handleCopyCode = () => {
+    navigator.clipboard.writeText(cleanCode)
+    setIsCopied(true)
+    setTimeout(() => setIsCopied(false), 2000)
+  }
+
   return (
-    <div className="w-full">
+    <div className="w-full space-y-3">
+      {/* Action Toolbar: Preview & Download */}
+      <div className="flex items-center justify-between px-1">
+        <span className="text-xs font-bold text-pm-foreground font-mono">
+          {title || (isMindmap ? 'Scientific Mindmap' : 'Research Flowchart')}
+        </span>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setIsPreviewOpen(true)}
+            className="px-2.5 py-1 rounded-xl bg-pm-frame border border-pm-border hover:bg-pm-muted text-[11px] font-semibold text-pm-foreground flex items-center gap-1 transition-all shadow-xs"
+          >
+            <Maximize2 className="w-3 h-3 text-pm-accent" />
+            <span>Preview</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleDownloadSVG}
+            className="px-2.5 py-1 rounded-xl bg-pm-foreground text-pm-background hover:bg-pm-foreground/90 text-[11px] font-semibold flex items-center gap-1 transition-all shadow-xs"
+          >
+            <Download className="w-3 h-3" />
+            <span>Download SVG</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleCopyCode}
+            className="p-1 rounded-xl border border-pm-border text-pm-muted-foreground hover:text-pm-foreground hover:bg-pm-muted transition-colors"
+            title="Copy Mermaid source"
+          >
+            {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+      </div>
+
       {renderMode === 'mermaid' ? (
         <div
           ref={ref}
-          className="w-full flex items-center justify-center overflow-x-auto py-4 [&_svg]:max-w-full [&_svg]:h-auto custom-scrollbar"
+          className="w-full flex items-center justify-center overflow-x-auto p-4 rounded-2xl bg-pm-frame border border-pm-border [&_svg]:max-w-full [&_svg]:h-auto custom-scrollbar shadow-xs"
           style={{ minHeight: '260px' }}
         />
       ) : (
@@ -259,6 +309,41 @@ export default function MermaidDiagram({ code, title, diagramType }: Props) {
               <span>Scientific Node Topology Validated</span>
             </span>
             <span>{nodes.length} Key Concepts</span>
+          </div>
+        </div>
+      )}
+
+      {/* Fullscreen Preview Modal */}
+      {isPreviewOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-fadeIn">
+          <div className="bg-pm-frame border border-pm-border rounded-3xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-pm-border flex items-center justify-between">
+              <h3 className="text-sm font-bold text-pm-foreground">{title || 'Scientific Diagram Preview'}</h3>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleDownloadSVG}
+                  className="px-3 py-1.5 rounded-xl bg-pm-foreground text-pm-background text-xs font-semibold flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download SVG</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewOpen(false)}
+                  className="p-1.5 rounded-xl text-pm-muted-foreground hover:text-pm-foreground hover:bg-pm-muted transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto p-8 flex items-center justify-center custom-scrollbar">
+              {svgString ? (
+                <div dangerouslySetInnerHTML={{ __html: svgString }} className="max-w-full max-h-full" />
+              ) : (
+                <pre className="text-xs font-mono text-pm-foreground p-4 bg-pm-background rounded-2xl">{cleanCode}</pre>
+              )}
+            </div>
           </div>
         </div>
       )}

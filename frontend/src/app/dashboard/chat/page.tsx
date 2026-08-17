@@ -28,6 +28,8 @@ import {
   X,
   File,
   Download,
+  Eye,
+  Image as ImageIcon,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import LuminarLoadingScreen from '@/components/ui/LuminarLoadingScreen'
@@ -377,6 +379,7 @@ function ResearchWorkspaceContent() {
   const [attachedFile, setAttachedFile] = useState<UploadedFilePreview | null>(null)
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null)
   const [showScrollBottom, setShowScrollBottom] = useState(false)
+  const [previewFile, setPreviewFile] = useState<any | null>(null)
 
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -1348,11 +1351,13 @@ function ResearchWorkspaceContent() {
               ) : (
                 <div className="space-y-2.5">
                   {uploadedFiles.map((uf, idx) => (
-                    <div key={idx} className="p-3.5 rounded-2xl bg-pm-frame border border-pm-border flex items-center justify-between shadow-xs">
+                    <div key={idx} className="p-3.5 rounded-2xl bg-pm-frame border border-pm-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded-xl bg-pm-muted flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-pm-muted flex items-center justify-center shrink-0">
                           {uf.file_type === 'PDF' ? (
                             <FileText className="w-4 h-4 text-rose-500" />
+                          ) : ['PNG', 'JPG', 'JPEG', 'IMAGE'].includes(uf.file_type) ? (
+                            <ImageIcon className="w-4 h-4 text-sky-500" />
                           ) : (
                             <File className="w-4 h-4 text-pm-accent" />
                           )}
@@ -1360,13 +1365,36 @@ function ResearchWorkspaceContent() {
                         <div className="min-w-0">
                           <div className="text-xs font-bold text-pm-foreground truncate">{uf.filename}</div>
                           <div className="text-[10px] font-mono text-pm-muted-foreground">
-                            {uf.file_type} • {(uf.file_size / 1024).toFixed(0)} KB • {uf.status || 'Ready'}
+                            {uf.file_type} • {(uf.file_size ? uf.file_size / 1024 : 12).toFixed(0)} KB • {uf.status || 'Ready'}
                           </div>
                         </div>
                       </div>
 
-                      <div className="text-xs font-mono text-emerald-500 font-semibold shrink-0 ml-2">
-                        ✓ In Memory
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewFile(uf)}
+                          className="px-2.5 py-1.5 rounded-xl bg-pm-muted hover:bg-pm-border text-pm-foreground text-xs font-medium flex items-center gap-1 transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-pm-accent" />
+                          <span>Preview</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const blob = new Blob([uf.extracted_text || uf.filename], { type: 'text/plain;charset=utf-8' })
+                            const url = URL.createObjectURL(blob)
+                            const a = document.createElement('a')
+                            a.href = url
+                            a.download = `${uf.filename}.txt`
+                            a.click()
+                            URL.revokeObjectURL(url)
+                          }}
+                          className="px-2.5 py-1.5 rounded-xl bg-pm-foreground text-pm-background hover:bg-pm-foreground/90 text-xs font-medium flex items-center gap-1 transition-colors"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download</span>
+                        </button>
                       </div>
                     </div>
                   ))}
@@ -1393,8 +1421,13 @@ function ResearchWorkspaceContent() {
                 </button>
               </div>
 
-              <article className="p-6 sm:p-8 rounded-3xl bg-pm-frame border border-pm-border space-y-6 shadow-xs">
-                <h1 className="text-xl font-extrabold text-pm-foreground">{report?.title || activeProject?.topic || 'Research Synthesis Report'}</h1>
+              <article className="p-6 rounded-2xl bg-pm-frame border border-pm-border space-y-6">
+                <header className="border-b border-pm-border pb-4">
+                  <h2 className="text-base font-bold text-pm-foreground tracking-tight">
+                    {report?.title || `Evidence Synthesis: ${activeProject?.topic || 'Research Inquiry'}`}
+                  </h2>
+                </header>
+
                 <div className="space-y-2">
                   <h4 className="text-xs font-bold text-pm-foreground uppercase tracking-wider">Executive Summary</h4>
                   <p className="text-xs text-pm-foreground/90 leading-relaxed">
@@ -1418,6 +1451,68 @@ function ResearchWorkspaceContent() {
           )}
         </div>
       </div>
+
+      {/* ── FULLSCREEN FILE PREVIEW MODAL ── */}
+      {previewFile && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-fadeIn">
+          <div className="bg-pm-frame border border-pm-border rounded-3xl max-w-4xl w-full max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+            <div className="p-4 border-b border-pm-border flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold text-pm-foreground">{previewFile.filename}</h3>
+                <div className="text-[10px] font-mono text-pm-muted-foreground">
+                  {previewFile.file_type} • {previewFile.status || 'Active in Research Memory'}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const blob = new Blob([previewFile.extracted_text || previewFile.filename], { type: 'text/plain;charset=utf-8' })
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `${previewFile.filename}.txt`
+                    a.click()
+                    URL.revokeObjectURL(url)
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-pm-foreground text-pm-background text-xs font-semibold flex items-center gap-1.5"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewFile(null)}
+                  className="p-1.5 rounded-xl text-pm-muted-foreground hover:text-pm-foreground hover:bg-pm-muted transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto p-6 space-y-4 custom-scrollbar">
+              {previewFile.image_analysis && previewFile.image_analysis.full_summary ? (
+                <div className="space-y-3">
+                  <div className="text-xs font-bold text-sky-500 uppercase tracking-wider font-mono">
+                    ✦ Groq Vision Scientific Analysis ({previewFile.image_analysis.image_type || 'Figure'})
+                  </div>
+                  <div className="p-4 rounded-2xl bg-pm-background border border-pm-border text-xs text-pm-foreground whitespace-pre-wrap leading-relaxed font-sans">
+                    {previewFile.image_analysis.full_summary}
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="space-y-2">
+                <div className="text-xs font-bold text-pm-foreground uppercase tracking-wider font-mono">
+                  Extracted Document Text Excerpt
+                </div>
+                <div className="p-4 rounded-2xl bg-pm-background border border-pm-border text-xs text-pm-muted-foreground whitespace-pre-wrap leading-relaxed font-mono">
+                  {previewFile.extracted_text || 'No readable text content extracted.'}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
