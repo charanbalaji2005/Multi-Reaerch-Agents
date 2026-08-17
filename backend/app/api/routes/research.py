@@ -25,6 +25,47 @@ def obj_id(id_str: str) -> ObjectId:
         raise HTTPException(status_code=400, detail="Invalid ID format")
 
 
+@router.post("/extract-text")
+async def extract_text_from_upload(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Extract text from an uploaded PDF, DOCX or TXT without needing a project. Used for Fresh Mode chat."""
+    ext = os.path.splitext(file.filename)[1].lower()
+    allowed_exts = [".pdf", ".docx", ".txt", ".md"]
+    if ext not in allowed_exts:
+        raise HTTPException(status_code=400, detail=f"Unsupported file format: {ext}. Supported: PDF, DOCX, TXT")
+
+    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    filename = f"tmp_{ObjectId()}_{file.filename}"
+    file_path = os.path.join(settings.UPLOAD_DIR, filename)
+
+    content_bytes = await file.read()
+    async with aiofiles.open(file_path, "wb") as f:
+        await f.write(content_bytes)
+
+    try:
+        extracted_text = extract_text_from_file(file_path)
+    except Exception as e:
+        extracted_text = ""
+    finally:
+        # Clean up temp file
+        try:
+            os.remove(file_path)
+        except Exception:
+            pass
+
+    if not extracted_text:
+        return {"extracted_text": "", "characters": 0, "status": "empty", "filename": file.filename}
+
+    return {
+        "extracted_text": extracted_text,
+        "characters": len(extracted_text),
+        "status": "ok",
+        "filename": file.filename
+    }
+
+
 @router.post("/{project_id}/upload-document")
 async def upload_project_document(
     project_id: str,

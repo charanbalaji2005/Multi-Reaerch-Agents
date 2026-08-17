@@ -83,6 +83,15 @@ export const api = {
       })
       .then((r) => r.data)
   },
+  extractTextFromFile: (file: File) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return axiosInstance
+      .post('/research/extract-text', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then((r) => r.data)
+  },
   getProjectFiles: (id: string) =>
     axiosInstance.get(`/research/${id}/files`).then((r) => r.data),
   getProjectChatHistory: (id: string) =>

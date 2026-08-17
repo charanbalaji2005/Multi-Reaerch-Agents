@@ -619,14 +619,26 @@ function ResearchWorkspaceContent() {
           setUploadedFiles((prev) => [...prev, uploadRes])
           toast.success(`✓ ${currentAttached.name} analyzed and added to workspace`)
         } else {
-          // Fresh Mode: read text client-side (TXT/MD work; PDF/DOCX users get a graceful note)
-          const localText = await readFileAsText(currentAttached.file)
-          fileTextToInject = localText
-          uploadedFileName = currentAttached.name
-          if (!localText && (currentAttached.name.endsWith('.pdf') || currentAttached.name.endsWith('.docx'))) {
-            toast(`📎 ${currentAttached.name} attached. For full PDF analysis, load a research context first.`, { icon: '📄' })
-          } else if (localText) {
-            toast.success(`✓ ${currentAttached.name} read and included`)
+          // Fresh Mode: use server-side extraction for ALL file types including PDFs
+          try {
+            const extractRes = await api.extractTextFromFile(currentAttached.file)
+            fileTextToInject = extractRes?.extracted_text || ''
+            uploadedFileName = currentAttached.name
+            if (fileTextToInject) {
+              toast.success(`✓ ${currentAttached.name} extracted (${extractRes.characters?.toLocaleString()} chars)`)
+            } else {
+              toast(`⚠️ Could not extract text from "${currentAttached.name}" (may be a scanned/image PDF).`, { icon: '📄' })
+            }
+          } catch {
+            // final fallback: plain text client-side
+            const localText = await readFileAsText(currentAttached.file)
+            fileTextToInject = localText
+            uploadedFileName = currentAttached.name
+            if (localText) {
+              toast.success(`✓ ${currentAttached.name} read`)
+            } else {
+              toast.error(`Could not read "${currentAttached.name}". Try uploading within a research project for better PDF support.`)
+            }
           }
         }
       } catch (uploadErr: any) {
