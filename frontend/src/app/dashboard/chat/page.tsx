@@ -30,6 +30,7 @@ import {
   Download,
   Eye,
   Image as ImageIcon,
+  ChevronDown,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import LuminarLoadingScreen from '@/components/ui/LuminarLoadingScreen'
@@ -380,6 +381,7 @@ function ResearchWorkspaceContent() {
   const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null)
   const [showScrollBottom, setShowScrollBottom] = useState(false)
   const [previewFile, setPreviewFile] = useState<any | null>(null)
+  const [showContextDropdown, setShowContextDropdown] = useState(false)
 
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -925,33 +927,91 @@ function ResearchWorkspaceContent() {
               </div>
             </div>
 
-            {/* Research Workspace Tabs */}
-            <div className="flex items-center gap-1 bg-pm-muted p-1 rounded-2xl shrink-0">
-              {[
-                { id: 'chat', label: 'Chat', icon: MessageSquare },
-                { id: 'evidence', label: `Evidence (${evidence.length})`, icon: Dna },
-                { id: 'sources', label: `Sources (${sources.length})`, icon: BookOpen },
-                { id: 'files', label: `Files (${uploadedFiles.length})`, icon: FileText },
-                { id: 'report', label: 'Report', icon: FileCode },
-              ].map((tab) => {
-                const Icon = tab.icon
-                const isActive = activeTab === tab.id
-                return (
+            {/* Research Workspace Tabs & Context Selector */}
+            <div className="flex items-center gap-2 shrink-0">
+              {projects.length > 0 && (
+                <div className="relative">
                   <button
-                    key={tab.id}
                     type="button"
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
-                      isActive
-                        ? 'bg-pm-foreground text-pm-background shadow-xs'
-                        : 'text-pm-muted-foreground hover:text-pm-foreground'
-                    }`}
+                    onClick={() => setShowContextDropdown(!showContextDropdown)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-pm-muted hover:bg-pm-muted/80 text-pm-foreground border border-pm-border shadow-xs transition-colors"
                   >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span>{tab.label}</span>
+                    <Sparkles className="w-3.5 h-3.5 text-pm-accent shrink-0" />
+                    <span className="max-w-[120px] truncate">{activeProject ? activeProject.topic : 'Choose Research'}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-pm-muted-foreground shrink-0" />
                   </button>
-                )
-              })}
+
+                  {showContextDropdown && (
+                    <div className="absolute right-0 top-full mt-2 w-72 bg-pm-frame border border-pm-border rounded-2xl shadow-xl z-50 p-2 space-y-1">
+                      <div className="text-[10px] font-mono font-bold text-pm-muted-foreground uppercase px-2 py-1">
+                        Select Research Context
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          handleStartNewChat()
+                          setShowContextDropdown(false)
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-colors flex items-center justify-between ${
+                          !activeProject ? 'bg-pm-muted text-pm-foreground font-bold' : 'text-pm-muted-foreground hover:bg-pm-muted hover:text-pm-foreground'
+                        }`}
+                      >
+                        <span>✨ Fresh Mode (No Context)</span>
+                        {!activeProject && <Check className="w-3.5 h-3.5 text-emerald-500" />}
+                      </button>
+                      <div className="border-t border-pm-border/60 my-1" />
+                      <div className="max-h-56 overflow-y-auto space-y-1 custom-scrollbar">
+                        {projects.map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedProjectId(p.id)
+                              router.replace(`/dashboard/chat?project=${p.id}`, { scroll: false })
+                              setShowContextDropdown(false)
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium transition-colors flex items-center justify-between ${
+                              activeProject?.id === p.id ? 'bg-pm-muted text-pm-foreground font-bold' : 'text-pm-muted-foreground hover:bg-pm-muted hover:text-pm-foreground'
+                            }`}
+                          >
+                            <span className="truncate pr-2">{p.topic}</span>
+                            {activeProject?.id === p.id && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Research Workspace Tabs */}
+              <div className="flex items-center gap-1 bg-pm-muted p-1 rounded-2xl shrink-0">
+                {[
+                  { id: 'chat', label: 'Chat', icon: MessageSquare },
+                  { id: 'evidence', label: `Evidence (${evidence.length})`, icon: Dna },
+                  { id: 'sources', label: `Sources (${sources.length})`, icon: BookOpen },
+                  { id: 'files', label: `Files (${uploadedFiles.length})`, icon: FileText },
+                  { id: 'report', label: 'Report', icon: FileCode },
+                ].map((tab) => {
+                  const Icon = tab.icon
+                  const isActive = activeTab === tab.id
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setActiveTab(tab.id as any)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap ${
+                        isActive
+                          ? 'bg-pm-foreground text-pm-background shadow-xs'
+                          : 'text-pm-muted-foreground hover:text-pm-foreground'
+                      }`}
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      <span>{tab.label}</span>
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
 
@@ -1027,6 +1087,32 @@ function ResearchWorkspaceContent() {
                         </button>
                       ))}
                     </div>
+
+                    {/* Quick Previous Research Pills */}
+                    {projects.length > 0 && !activeProject && (
+                      <div className="w-full pt-4 text-left space-y-2 border-t border-pm-border/60">
+                        <div className="text-[11px] font-bold text-pm-foreground flex items-center gap-1.5">
+                          <BookOpen className="w-3.5 h-3.5 text-pm-accent" />
+                          <span>Or load context from previous research:</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {projects.slice(0, 4).map((p) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedProjectId(p.id)
+                                router.replace(`/dashboard/chat?project=${p.id}`, { scroll: false })
+                              }}
+                              className="px-3 py-1.5 rounded-xl bg-pm-frame hover:bg-pm-muted border border-pm-border text-xs font-medium text-pm-foreground flex items-center gap-1.5 transition-all shadow-xs"
+                            >
+                              <span className="truncate max-w-[180px]">{p.topic}</span>
+                              <span className="text-[9px] font-mono text-pm-muted-foreground">→</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   messages.map((msg) => {
