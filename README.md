@@ -1,1354 +1,637 @@
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                         🔬 LUMINAR AI                                      ║
-║          AUTONOMOUS MULTI-AGENT RESEARCH INTELLIGENCE PLATFORM             ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-
-TAGLINE:
-“Plan → Search → Extract → Verify → Critique → Synthesize → Cite → Audit → Continue”
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. PROJECT OVERVIEW
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Luminar AI is an AI-powered research intelligence platform designed to help
-researchers perform academic and scientific research in a faster, more
-structured, evidence-grounded, and auditable way.
-
-Instead of using one general-purpose AI chatbot to search for papers and
-generate an answer, Luminar AI divides the research process among specialized
-AI agents. Each agent is responsible for a specific research task and passes
-useful information to the next stage.
-
-The system is designed to support the complete research lifecycle:
-
-Research Question
-      ↓
-Research Planning
-      ↓
-Literature Discovery
-      ↓
-Evidence Extraction
-      ↓
-Citation Verification
-      ↓
-Cross-Study Comparison
-      ↓
-Contradiction Detection
-      ↓
-Adversarial Critique
-      ↓
-Research Gap Identification
-      ↓
-Evidence Synthesis
-      ↓
-Research Report
-      ↓
-Continuous Follow-up Research
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-2. PROBLEM STATEMENT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Academic research is time-consuming and fragmented.
-
-Researchers usually have to:
-
-• Search multiple academic platforms
-• Find relevant papers
-• Read large amounts of research material
-• Extract useful information
-• Compare findings from different studies
-• Verify whether citations actually support claims
-• Identify contradictory research
-• Find research gaps
-• Organize sources
-• Write a final research report
-• Return to previous research when new evidence appears
-
-This creates several problems:
-
-• Large amount of repetitive manual work
-• Research information scattered across multiple platforms
-• Difficulty comparing large numbers of papers
-• Citation and source verification problems
-• Risk of AI hallucinations
-• Unsupported research claims
-• Difficulty identifying contradictory evidence
-• Loss of research context between sessions
-• Lack of an auditable research process
-
-Traditional AI research chatbots generally follow:
-
-User Question
-      ↓
-LLM
-      ↓
-Answer
-
-This approach can produce convincing answers without sufficiently verifying
-whether the information is supported by reliable academic evidence.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-3. OUR SOLUTION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Luminar AI turns research into a coordinated multi-agent workflow.
-
-Instead of asking one AI to perform every task, specialized agents collaborate:
-
-User
- ↓
-Research Planner
- ↓
-Literature Researcher
- ↓
-Evidence Extractor
- ↓
-Citation Verifier
- ↓
-Adversarial Critic
- ↓
-Research Report Writer
- ↓
-Verified Research Result
-
-The goal is not simply to generate an answer.
-
-The goal is to produce an answer that is:
-
-• Evidence-grounded
-• Source-aware
-• Citation-aware
-• Critical
-• Traceable
-• Persistent
-• Auditable
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-4. SIX SPECIALIZED AGENTS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-① RESEARCH PLANNER AGENT
-──────────────────────────
-
-The Research Planner is responsible for understanding the research question
-and creating a structured research strategy.
-
-It can identify:
-
-• Research objectives
-• Target population
-• Intervention/exposure
-• Comparison
-• Outcomes
-• Boundary conditions
-• Inclusion criteria
-• Exclusion criteria
-• Research sub-questions
-• Search strategy
-
-It also expands the original question into multiple research queries.
-
-Example:
-
-Question:
-“Does intermittent fasting improve insulin sensitivity in adults with
-prediabetes?”
-
-Generated searches may include:
-
-• intermittent fasting and insulin sensitivity
-• time-restricted eating and insulin resistance
-• intermittent fasting and prediabetes
-• HOMA-IR and time-restricted eating
-• randomized controlled trials of intermittent fasting
-• systematic reviews of intermittent fasting
-
-
-② LITERATURE RESEARCH AGENT
-────────────────────────────
+```markdown
+<div align="center">
 
-This agent searches available academic and scholarly sources.
+# 🔬 LUMINAR AI
+### Autonomous Multi-Agent Research Intelligence Platform
 
-Possible configured sources include:
+*“Plan → Search → Extract → Verify → Critique → Synthesize → Cite → Audit → Continue”*
 
-• Crossref
-• Semantic Scholar
-• PubMed
-• arXiv
-• OpenAlex
-• Europe PMC
-• IEEE Xplore
-• ACM-related publication metadata
-• DOI/paper URLs
-• Authorized research libraries
-
-It collects information such as:
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Architecture: Multi-Agent](https://img.shields.io/badge/Architecture-6--Agent%20Pipeline-emerald.svg)](#-system-architecture)
+[![Evidence Grounded](https://img.shields.io/badge/Grounding-Source--Verified-purple.svg)](#-citation-verification-framework)
+[![Provider Fault-Tolerance](https://img.shields.io/badge/Fault--Tolerance-Isolated%20Retries-orange.svg)](#-external-data-providers--fault-tolerance)
 
-• Paper title
-• Authors
-• Abstract
-• Publication year
-• DOI
-• Publisher
-• Source
-• Publication type
-• URL
+<p align="center">
+  <b>Luminar AI turns complex, fragmented scientific exploration into a verifiable, deterministic, and auditable multi-agent workflow.</b>
+</p>
 
+</div>
 
-③ EVIDENCE EXTRACTION AGENT
-───────────────────────────
+---
 
-This agent analyzes available research material and extracts useful evidence.
+## 📌 Table of Contents
 
-It identifies:
+- [Project Overview](#-1-project-overview)
+- [Problem Statement](#-2-problem-statement)
+- [The Solution](#-3-the-solution)
+- [The 6 Specialized Agents](#-4-the-6-specialized-agents)
+- [Multi-Agent Collaboration Model](#-5-multi-agent-collaboration-model)
+- [Complete 17-Step Research Workflow](#-6-complete-17-step-research-workflow)
+- [Persistent Research Engine](#-7-persistent-research-engine)
+- [Iterative Evidence Ingestion](#-8-iterative-evidence-ingestion-new-paper--existing-research)
+- [Document Intelligence](#-9-document-intelligence)
+- [Scientific Image & Multimodal Understanding](#-10-scientific-image--multimodal-understanding)
+- [Research History Workspace](#-11-research-history-workspace)
+- [Source Management & Grounding](#-12-source-management--grounding)
+- [Auditability & Traceability](#-13-auditability--traceability)
+- [Trust & Research Integrity](#-14-trust--research-integrity)
+- [Hallucination Resistance](#-15-hallucination-resistance)
+- [Contradiction Detection Engine](#-16-contradiction-detection-engine)
+- [Research Accuracy & Benchmarking](#-17-research-accuracy--benchmarking)
+- [Telemetry & Cost Tracking](#-18-telemetry--cost-tracking)
+- [External Providers & Fault Tolerance](#-19-external-providers--fault-tolerance)
+- [User Experience & Live Progress States](#-20-user-experience--live-progress-states)
+- [System Architecture](#-21-system-architecture)
+- [Technology Stack](#-22-technology-stack)
+- [Security, Privacy & Safety](#-23-security-privacy--safety)
+- [End-to-End Walkthrough](#-24-end-to-end-walkthrough)
+- [Feature-to-Problem Mapping](#-25-feature-to-problem-mapping)
+- [Paradigm Comparison](#-26-paradigm-comparison)
+- [Core Demo Highlights](#-27-core-demo-highlights)
+- [Expected Impact](#-28-expected-impact)
+- [Quickstart Guide](#-quickstart-guide)
 
-• Claims
-• Findings
-• Methodology
-• Population
-• Sample size
-• Intervention
-• Comparison
-• Outcomes
-• Statistical findings
-• Limitations
-• Conclusions
-• Supporting passages
+---
 
-It can distinguish between:
+## 🔬 1. Project Overview
 
-Full-text evidence
-Abstract evidence
-Metadata-only information
-User-uploaded document evidence
+Luminar AI is an AI-powered research intelligence platform designed to help researchers conduct academic and scientific investigations in a faster, structured, evidence-grounded, and fully auditable manner.
 
-This prevents the system from pretending that it analyzed information that
-was never actually available.
+Instead of relying on a single, monolithic AI chatbot to find papers and generate answers, Luminar AI distributes the research lifecycle across specialized autonomous agents. Each agent executes a dedicated research stage and passes structured, typed state to subsequent agents.
 
 
-④ CITATION VERIFICATION AGENT
-─────────────────────────────
-
-This is one of Luminar AI's core trust features.
-
-The agent tries to connect:
-
-Claim
- ↓
-Evidence
- ↓
-Source
- ↓
-Verification
-
-Possible statuses include:
-
-🟢 SUPPORTED
-🟡 PARTIALLY SUPPORTED
-🔴 CONTRADICTED
-⚠️ UNSUPPORTED
-❓ SOURCE NOT FOUND
-
-It helps detect:
-
-• Unsupported claims
-• Incorrect citations
-• Citation mismatches
-• Fabricated references
-• Incorrect DOI information
-• Incorrect source attribution
-
-
-⑤ ADVERSARIAL RESEARCH CRITIC
-─────────────────────────────
-
-The Critic Agent does not simply accept the first conclusion.
-
-It asks:
-
-“What evidence could show that this conclusion is wrong?”
-
-It searches for:
-
-• Contradictory studies
-• Weak evidence
-• Methodological limitations
-• Small sample sizes
-• Population mismatch
-• Endpoint mismatch
-• Confounding factors
-• Correlation vs causation problems
-• Missing evidence
-• Overconfident conclusions
-
-If research findings disagree, Luminar AI can report:
+```
 
-“MIXED EVIDENCE”
+Research Question ──▶ Research Planning ──▶ Literature Discovery ──▶ Evidence Extraction
+│
+Research Report ◀── Evidence Synthesis ◀── Adversarial Critique ◀── Citation Verification
+│
+└──▶ Continuous / Follow-Up Research Loop
 
-instead of forcing a false consensus.
+```
 
+---
 
-⑥ RESEARCH REPORT WRITER
-─────────────────────────
+## ⚠️ 2. Problem Statement
 
-The final agent synthesizes the verified research into a structured report.
+Academic and scientific research is slow, manual, and scattered across disparate sources:
 
-A report can contain:
+* **Fragmented Tooling:** Researchers manually query multiple databases, reconcile formats, and manage dozens of open browser tabs.
+* **Manual Bottlenecks:** Information extraction, cross-study synthesis, and methodology comparisons consume hundreds of manual hours.
+* **AI Hallucinations:** Traditional chatbots invent citations, mix up DOIs, misattribute findings, and state ungrounded claims with high confidence.
+* **Overlooked Discrepancies:** Monolithic LLMs often force artificial consensus rather than highlighting conflicting results or small sample sizes.
+* **Context Loss:** Research sessions reset with every new prompt, making long-term investigation impossible.
 
-• Executive Summary
-• Research Method
-• Key Findings
-• Supporting Evidence
-• Contradictory Evidence
-• Evidence Comparison
-• Citation Verification
-• Research Gaps
-• Limitations
-• Conclusion
-• References
-• Source Links
 
+```
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-5. MULTI-AGENT COLLABORATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Traditional AI:  [User Question] ──────▶ [Monolithic LLM] ──────▶ [Plausible, Unverified Answer]
 
-The agents are not six independent chatbots.
+```
 
-They exchange useful research state.
+---
 
-                    USER
-                      │
-                      ▼
-              RESEARCH PLANNER
-                      │
-                Research Plan
-                      │
-                      ▼
-             LITERATURE RESEARCHER
-                      │
-              Papers + Metadata
-                      │
-                      ▼
-             EVIDENCE EXTRACTOR
-                      │
-               Claims + Evidence
-                      │
-                      ▼
-             CITATION VERIFIER
-                      │
-              Verification Results
-                      │
-                      ▼
-             ADVERSARIAL CRITIC
-                      │
-          Contradictions + Limitations
-                      │
-                      ▼
-             REPORT WRITER
-                      │
-                      ▼
-             FINAL REPORT
+## 💡 3. The Solution
+
+Luminar AI transforms scientific research into a coordinated, multi-agent pipeline. The platform replaces single-prompt answering with a verifiable research workflow:
+
+* **Evidence-Grounded:** Every conclusion maps directly to verified textual passages.
+* **Source-Aware:** Distinguishes full-text, abstract-only, and metadata-only evidence.
+* **Citation-Aware:** Real-time validation of DOIs, authors, and source integrity.
+* **Adversarial:** Proactively seeks out counter-evidence and methodological flaws.
+* **Traceable & Auditable:** Preserves an inspection trail from initial query to final synthesis.
+* **Persistent:** Retains past findings, query strategies, and documents across sessions.
+
+---
+
+## 🤖 4. The 6 Specialized Agents
+
+
+```
+
+┌──────────────────┐      ┌───────────────────────┐      ┌─────────────────────┐
+│ 1. Planner Agent │ ───▶ │ 2. Literature Agent   │ ───▶ │ 3. Evidence Agent   │
+└──────────────────┘      └───────────────────────┘      └─────────────────────┘
+│
+┌──────────────────┐      ┌───────────────────────┐      ┌──────────▼──────────┐
+│ 6. Report Writer │ ◀─── │ 5. Adversarial Critic │ ◀─── │ 4. Citation Verifier│
+└──────────────────┘      └───────────────────────┘      └─────────────────────┘
+
+```
+
+### ① Research Planner Agent
+Deconstructs research questions into structured execution strategies using the **PICO** framework (Population, Intervention, Comparison, Outcomes) and boundary conditions.
+* Identifies inclusion and exclusion criteria.
+* Breaks complex topics into targeted sub-questions.
+* Expands single queries into multi-angle search strings.
+
+### ② Literature Research Agent
+Asynchronously queries academic repositories, preprint servers, and scholarly databases.
+* Connects to Crossref, Semantic Scholar, PubMed, arXiv, OpenAlex, Europe PMC, and IEEE Xplore.
+* Extracts structured metadata: titles, authors, DOIs, publication years, abstracts, and open-access URLs.
+
+### ③ Evidence Extraction Agent
+Reads ingested literature and user-uploaded files to extract discrete empirical data points.
+* Identifies methodology, sample sizes ($N$), populations, statistical indicators ($p$-values, effect sizes), limitations, and direct quotes.
+* Categorizes evidence tier: **Full-Text Evidence**, **Abstract Evidence**, **Metadata-Only**, or **User Document Evidence**.
+
+### ④ Citation Verification Agent
+Evaluates claims against source text to prevent hallucinations and misattributions.
+* Connects claims directly to primary sources: $\text{Claim} \rightarrow \text{Evidence} \rightarrow \text{Source} \rightarrow \text{Verification}$.
+* Assigns granular verification statuses:
+  * 🟢 **SUPPORTED**
+  * 🟡 **PARTIALLY SUPPORTED**
+  * 🔴 **CONTRADICTED**
+  * ⚠️ **UNSUPPORTED**
+  * ❓ **SOURCE NOT FOUND**
+
+### ⑤ Adversarial Research Critic
+Stress-tests emerging conclusions by proactively hunting for contradictions and methodological limitations.
+* Evaluates confounding factors, small sample sizes, and correlation vs. causation errors.
+* Replaces artificial consensus with explicit **“MIXED EVIDENCE”** summaries when data conflicts.
+
+### ⑥ Research Report Writer
+Synthesizes verified data points into comprehensive literature reviews and reports.
+* Formats executive summaries, methodologies, key findings, counter-evidence tables, research gap analyses, and verified reference lists.
+
+---
+
+## 🔗 5. Multi-Agent Collaboration Model
+
+Agents do not operate as isolated chat sessions; they share and mutate a typed, unified state object across the entire lifecycle:
+
+```mermaid
+graph TD
+    User([User Prompt]) --> Planner[Research Planner]
+    Planner -->|Research Plan + Query Matrix| Lit[Literature Researcher]
+    Lit -->|Normalized Metadata + Paper Corpora| Extractor[Evidence Extractor]
+    Extractor -->|Extracted Claims + Statistical Passages| Verifier[Citation Verifier]
+    Verifier -->|Verification Status Map + Claim Nodes| Critic[Adversarial Critic]
+    Critic -->|Counter-Evidence + Methodological Limits| Writer[Report Writer]
+    Writer --> Output([Auditable Research Report])
+
+```
+
+---
 
-The output from one stage becomes useful input for the next stage.
+## ⚡ 6. Complete 17-Step Research Workflow
+
+```mermaid
+flowchart TD
+    S1[1. User Input] --> S2[2. Research Planning]
+    S2 --> S3[3. Query Expansion]
+    S3 --> S4[4. Scholarly Search]
+    S4 --> S5[5. Source Normalization]
+    S5 --> S6[6. Duplicate Detection]
+    S6 --> S7[7. Relevance Ranking]
+    S7 --> S8[8. Evidence Extraction]
+    S8 --> S9[9. Claim Identification]
+    S9 --> S10[10. Citation Verification]
+    S10 --> S11[11. Cross-Source Comparison]
+    S11 --> S12[12. Contradiction Detection]
+    S12 --> S13[13. Adversarial Critique]
+    S13 --> S14[14. Research Gap Identification]
+    S14 --> S15[15. Evidence Synthesis]
+    S15 --> S16[16. Final Report Generation]
+    S16 --> S17[17. Follow-Up Research Loop]
+    S17 -.->|Maintains Context| S2
 
+```
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-6. COMPLETE RESEARCH WORKFLOW
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. **User Input:** Researcher inputs primary question or upload.
+2. **Research Planning:** Formulates boundaries, PICO criteria, and scopes.
+3. **Query Expansion:** Generates variations to capture adjacent literature.
+4. **Scholarly Search:** Dispatches API requests across connected research databases.
+5. **Source Normalization:** Formats varied provider outputs into a unified schema.
+6. **Duplicate Detection:** Removes duplicate records via DOI and normalized title matching.
+7. **Relevance Ranking:** Scores papers by semantic similarity, population match, and recency.
+8. **Evidence Extraction:** Extracts data points, experimental methods, and key quotes.
+9. **Claim Identification:** Isolates assertions for systematic verification.
+10. **Citation Verification:** Checks each claim against underlying evidence spans.
+11. **Cross-Source Comparison:** Aligns findings across multiple independent studies.
+12. **Contradiction Detection:** Surfaces conflicting results between studies.
+13. **Adversarial Critique:** Evaluates study weaknesses, confounders, and overreach.
+14. **Research Gap Identification:** Highlights missing variables and unanswered questions.
+15. **Evidence Synthesis:** Merges evidence, critiques, and source links into a structured document.
+16. **Final Report:** Delivers an auditable, fully-cited research review.
+17. **Follow-Up Research:** Retains complete session memory for continuous querying.
 
-STEP 1 — USER INPUT
-───────────────────
+---
 
-The researcher enters a research question.
+## 💾 7. Persistent Research Engine
 
-Example:
+Luminar AI acts as a long-term research workspace rather than a transient chatbot session.
 
-“Does intermittent fasting improve insulin sensitivity in adults with
-prediabetes?”
+```
+ Day 1: Systematic Search ──▶ Claims & Sources Stored in State DB
+                                        │
+ Day 3: Follow-Up Query   ──▶ Hydrates Prior Context (No re-searching required)
 
+```
 
-STEP 2 — RESEARCH PLANNING
-──────────────────────────
+The persistent storage engine tracks:
 
-The Planner Agent understands the question and creates a structured research
-strategy.
+* Research questions, objectives, and boundary conditions
+* Verified claims, contradictory nodes, and citation links
+* Ingested document chunks and vision-extracted figure notes
+* Complete audit logs and cumulative token/API cost tracking
 
+---
 
-STEP 3 — QUERY EXPANSION
-────────────────────────
+## 🔄 8. Iterative Evidence Ingestion (New Paper + Existing Research)
 
-The system generates multiple targeted queries instead of relying on one
-search phrase.
+Integrate new papers into an existing investigation without re-running the entire search pipeline:
 
+```mermaid
+flowchart LR
+    PriorState[Prior Context & Evidence] --> IngestionEngine[Ingestion Engine]
+    NewPaper[Uploaded Paper / Trial PDF] --> IngestionEngine
+    IngestionEngine --> Extractor[Evidence Extraction]
+    Extractor --> DiffEngine[Differential Synthesis & Critique]
+    DiffEngine --> UpdatedReport[Updated Evidence Report]
 
-STEP 4 — SCHOLARLY SEARCH
-─────────────────────────
+```
 
-The Literature Research Agent searches configured scholarly sources.
+---
 
+## 📄 9. Document Intelligence
 
-STEP 5 — SOURCE NORMALIZATION
-──────────────────────────────
+Luminar AI parses multiple document formats directly within the research workspace:
 
-Research metadata from different providers is normalized into a consistent
-format.
+* **Supported Formats:** `PDF`, `DOCX`, `TXT`
+* **Targeted Queries:**
+* *"Summarize the methodology section of this clinical trial."*
+* *"Extract all reported p-values and confidence intervals."*
+* *"Does this manuscript contradict my earlier findings on insulin sensitivity?"*
+* *"Extract all unverified claims made in the discussion section."*
 
 
-STEP 6 — DUPLICATE DETECTION
-─────────────────────────────
 
-The system identifies duplicate papers using information such as:
+---
 
-• DOI
-• Normalized title
-• Authors
-• Title similarity
+## 👁️ 10. Scientific Image & Multimodal Understanding
 
+Process and ground scientific visuals alongside text using vision models:
 
-STEP 7 — RELEVANCE RANKING
-──────────────────────────
+```
+[Scientific Figure / Chart] ──▶ Vision Parser ──▶ Data Extraction ──▶ Unified Research Context
 
-Research can be ranked using:
+```
 
-• Semantic similarity
-• Title relevance
-• Abstract relevance
-• Population match
-• Outcome match
-• Study type
-• Recency
-• Metadata quality
+* **Visual Ingestion:** Charts, scatter plots, survival curves, microscopy images, tables, and system diagrams.
+* **Capabilities:** Extracts trend lines, axis variables, data distributions, and compares visual findings with textual claims.
 
+---
 
-STEP 8 — EVIDENCE EXTRACTION
-────────────────────────────
+## 🗂️ 11. Research History Workspace
 
-The Evidence Agent extracts important claims and findings from the available
-research.
+Organize and revisit previous investigations seamlessly:
 
+* **Timeline Categorization:** Organized by *Today*, *Yesterday*, *This Week*, and *Earlier*.
+* **Global Search Index:** Filter prior research by topic, question, DOI, author, or document contents.
 
-STEP 9 — CLAIM IDENTIFICATION
-─────────────────────────────
+---
 
-Important research claims are identified and prepared for verification.
+## 📚 12. Source Management & Grounding
 
+Every literature reference maintains complete metadata integrity to prevent broken links or hallucinations:
 
-STEP 10 — CITATION VERIFICATION
-───────────────────────────────
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│ Intermittent Fasting and Metabolic Health in Prediabetes (2024)         │
+│ Authors: J. Doe, A. Smith et al.                                       │
+│ Publisher: Journal of Clinical Endocrinology & Metabolism              │
+│ DOI: 10.1210/clinem/dgad000                                           │
+│ Status: 🟢 Grounded & Verified | Type: Randomized Controlled Trial     │
+│ [PubMed] [Crossref] [Semantic Scholar] [Direct PDF Link]               │
+└────────────────────────────────────────────────────────────────────────┘
 
-Claims are checked against their available supporting sources.
+```
 
+---
 
-STEP 11 — CROSS-SOURCE COMPARISON
-─────────────────────────────────
+## 🔍 13. Auditability & Traceability
 
-The system compares findings across multiple studies.
+Track every step of the synthesis pipeline. The audit interface displays:
 
+* Raw queries sent to external scholarly providers
+* Filtering rationale and duplicate exclusion metrics
+* Claim-to-source mapping showing exact verbatim text passages
+* Real-time agent status without leaking private model chain-of-thought
 
-STEP 12 — CONTRADICTION DETECTION
-─────────────────────────────────
+---
 
-Conflicting evidence is identified instead of being hidden.
+## 🛡️ 14. Trust & Research Integrity
 
+Luminar AI prevents unverified generation through strict evidence checks:
 
-STEP 13 — ADVERSARIAL CRITIQUE
-──────────────────────────────
+$$\text{Unsupported Claim Rate} = \frac{\text{Claims without Valid Passage Links}}{\text{Total Asserted Claims}} \rightarrow 0$$
 
-The Critic Agent searches for weaknesses in the current conclusion.
+If evidence is insufficient or unavailable, the system states that data is missing rather than generating approximations.
 
+---
 
-STEP 14 — RESEARCH GAP IDENTIFICATION
-─────────────────────────────────────
+## 🚫 15. Hallucination Resistance
 
-The system identifies areas where evidence is limited or further research
-may be needed.
+| Hallucination Risk | Traditional AI Approach | Luminar AI Defense Architecture |
+| --- | --- | --- |
+| **Fabricated DOIs** | Guesses plausible DOI strings | Direct API lookup via Crossref/PubMed registries |
+| **Invented Authors** | Generates plausible name combinations | Strict metadata normalization from provider feeds |
+| **Claim Misattribution** | Attributes claims to unrelated papers | Granular text-span matching via Citation Verifier |
+| **False Consensus** | Smooths over conflicting findings | Explicit contradiction classification & alert badges |
+| **Abstract Truncation** | Treats abstract claims as proven facts | Distinguishes full-text proof from abstract summaries |
 
+---
 
-STEP 15 — EVIDENCE SYNTHESIS
-────────────────────────────
+## ⚖️ 16. Contradiction Detection Engine
 
-The Report Writer combines the verified research state.
+When literature presents conflicting conclusions, Luminar AI categorizes the divergence instead of averaging out the results:
 
+```
+            ┌── Study A (RCT, N=500): Statistically Significant Improvement
+Discrepancy ┼── Study B (Cohort, N=40): No Significant Effect Observed
+            └── Study C (RCT, N=120): Improvement Restricted to Male Subgroup
+                               │
+                               ▼
+        [Luminar AI Classification: MIXED EVIDENCE]
+     Evaluates: Sample sizes, dosage/duration, endpoints
 
-STEP 16 — FINAL REPORT
-──────────────────────
+```
 
-The user receives a structured, evidence-grounded research report.
+---
 
+## 📈 17. Research Accuracy & Benchmarking
 
-STEP 17 — FOLLOW-UP RESEARCH
-────────────────────────────
+Quality is tracked using measurable information retrieval and verification metrics:
 
-The researcher can continue asking questions using the existing research
-context.
+* **Precision@K & Recall@K:** Evaluates literature retrieval coverage.
+* **Citation Correctness Rate:** Percentage of citations pointing to exact supporting passages.
+* **Unsupported Claim Rate:** Frequency of assertions lacking source grounding.
+* **Duplicate Removal Accuracy:** Measures deduplication precision across repositories.
 
+---
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-7. PERSISTENT RESEARCH
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 📊 18. Telemetry & Cost Tracking
 
-A major feature of Luminar AI is that research does not have to end after
-one conversation.
+Track computational and API costs for complete research runs:
 
-A research project can maintain:
+```
+┌────────────────────────────────────────────────────────┐
+│ RESEARCH RUN TELEMETRY                                 │
+├────────────────────────────────┬───────────────────────┤
+│ Active Model Provider          │ Groq / Open-Weight LLM│
+│ Prompt / Completion Tokens     │ 24,180 / 4,320        │
+│ External Provider API Calls    │ 18 Success / 1 Retry  │
+│ Estimated Run Cost             │ $0.0142 USD           │
+│ Total Pipeline Execution Time  │ 8.42 seconds          │
+└────────────────────────────────┴───────────────────────┘
 
-• Research question
-• Research objectives
-• Boundary conditions
-• Previous conversations
-• Findings
-• Evidence
-• Claims
-• Citations
-• Sources
-• Uploaded files
-• Search queries
-• Contradictions
-• Limitations
-• Research reports
-• Research activity
-• Cost information
+```
 
-Example:
+---
 
-Day 1:
-User researches intermittent fasting.
+## 🌐 19. External Providers & Fault Tolerance
 
-Day 3:
-User returns.
+The Literature Research Agent handles external API failures using isolated circuit breakers, exponential backoff, and automatic fallbacks:
 
-Instead of starting again:
+```
+                 ┌──▶ Crossref API        ──▶ [200 OK]
+                 ├──▶ PubMed Central      ──▶ [200 OK]
+                 ├──▶ Semantic Scholar    ──▶ [200 OK]
+Literature Agent ┼──▶ OpenAlex            ──▶ [200 OK]
+                 ├──▶ arXiv API           ──▶ [200 OK]
+                 ├──▶ Europe PMC          ──▶ [200 OK]
+                 └──▶ IEEE Xplore*        ──▶ [Timeout: Fallback to Mirror]
 
-“What was my previous research?”
+```
 
-Luminar AI can continue from the existing research context.
+**Provider availability depends on configured API access.*
 
+---
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-8. NEW PAPER + EXISTING RESEARCH
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 💻 20. User Experience & Live Progress States
 
-This is an important workflow.
+The interface exposes structured, transparent progress updates while keeping private system instructions secure:
 
-Existing Research
-       +
-Previous Conversation
-       +
-Existing Evidence
-       +
-Existing Sources
-       +
-New Uploaded Paper
-       ↓
-Evidence Extraction
-       ↓
-Comparison
-       ↓
-Citation Verification
-       ↓
-Adversarial Critique
-       ↓
-Updated Research Answer
-
-Example:
-
-User:
-“I uploaded a new clinical trial. Compare it with my previous research.”
-
-Luminar AI uses the existing investigation and the newly uploaded paper to
-produce a comparison instead of starting a completely new research session.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-9. DOCUMENT INTELLIGENCE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Luminar AI is designed to work with research documents such as:
-
-• PDF
-• DOCX
-• TXT
-
-The user can upload a paper and ask:
-
-• Summarize this paper.
-• What methodology was used?
-• What were the findings?
-• What are the limitations?
-• Does this paper support my conclusion?
-• Compare this paper with my previous research.
-• What claims require verification?
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-10. SCIENTIFIC IMAGE UNDERSTANDING
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-With a configured vision-capable model/API, Luminar AI can process research
-visuals such as:
-
-• Charts
-• Graphs
-• Scientific figures
-• Tables
-• Diagrams
-• Screenshots
-• Research images
-
-Example:
-
-Upload a scientific graph
-        ↓
-Vision analysis
-        ↓
-Extract observations
-        ↓
-Add observations to research context
-        ↓
-User asks follow-up question
-
-Example questions:
-
-“What trend does this graph show?”
-
-“Does this figure support the paper's conclusion?”
-
-“Compare this figure with the previous study.”
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-11. RESEARCH HISTORY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Previous investigations can be organized into:
-
-• Today
-• Yesterday
-• This Week
-• Earlier
-
-Users can search previous research by:
-
-• Research question
-• Conversation
-• Source title
-• Filename
-• Research topic
-
-This turns Luminar AI into a persistent research workspace instead of a
-temporary chatbot.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-12. SOURCE MANAGEMENT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Source information can include:
-
-• Title
-• Authors
-• Year
-• Publisher
-• DOI
-• Source platform
-• Study type
-• URL
-
-Available links can point to legitimate source pages such as:
-
-• DOI
-• PubMed
-• arXiv
-• IEEE Xplore
-• Semantic Scholar
-• Publisher pages
-• Other configured scholarly providers
-
-The system should not fabricate papers, DOIs, or source URLs.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-13. AUDITABLE RESEARCH
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Luminar AI is designed to make the research process traceable.
-
-Research Question
-       ↓
-Queries
-       ↓
-Providers
-       ↓
-Sources
-       ↓
-Duplicates
-       ↓
-Relevant Papers
-       ↓
-Evidence
-       ↓
-Claims
-       ↓
-Citation Verification
-       ↓
-Contradictions
-       ↓
-Critique
-       ↓
-Synthesis
-       ↓
-Final Report
-
-The interface can show useful research activity without exposing private
-model chain-of-thought.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-14. TRUST & RESEARCH INTEGRITY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Luminar AI is designed around evidence grounding.
-
-The system can evaluate:
-
-• Citation correctness
-• Evidence grounding
-• Source quality
-• Cross-source agreement
-• Unsupported claim rate
-• Metadata validity
-
-If evidence is insufficient, the system should clearly state that the
-evidence is insufficient instead of pretending to know the answer.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-15. HALLUCINATION RESISTANCE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-The system targets common research-AI failures:
-
-• Fabricated papers
-• Fake DOI numbers
-• Incorrect authors
-• Incorrect publication years
-• Unsupported claims
-• Citation mismatch
-• Correlation/causation errors
-• Contradictory evidence
-• Missing full text
-• Abstract-only evidence
-
-The principle is:
-
-NO EVIDENCE → DO NOT PRETEND THERE IS EVIDENCE.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-16. CONTRADICTION DETECTION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Academic literature often disagrees.
-
-Example:
-
-Study A → Supports the hypothesis
-Study B → No significant effect
-Study C → Effect only in a specific population
-
-Luminar AI can explain that the evidence is mixed and investigate possible
-reasons:
-
-• Different populations
-• Different methodologies
-• Different intervention duration
-• Different endpoints
-• Different sample sizes
-• Different study designs
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-17. RESEARCH ACCURACY EVALUATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-The project can evaluate research quality using measurable metrics such as:
-
-• Precision@K
-• Recall@K
-• Citation correctness
-• Evidence grounding
-• Unsupported claim rate
-• Duplicate rate
-• Source relevance
-
-The system should report actual measured benchmark results rather than
-inventing an accuracy percentage.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-18. COST TRACKING
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Luminar AI can track:
-
-• Model usage
-• Token usage
-• Provider requests
-• Successful requests
-• Failed requests
-• Estimated API cost
-• Total research-run cost
-
-This helps measure whether the multi-agent research workflow is practical
-and cost-efficient.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-19. FAULT TOLERANCE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Academic providers can fail independently.
-
-Example:
-
-Crossref          ✓
-PubMed            ✓
-Semantic Scholar  ✓
-OpenAlex          ✓
-IEEE              ✗
-arXiv             ✓
-
-A failure from one provider should not necessarily terminate the entire
-research workflow.
-
-Possible reliability mechanisms include:
-
-• Timeouts
-• Retries
-• Provider isolation
-• Fallback providers
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-20. USER EXPERIENCE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-The user interacts with one AI assistant.
-
-The specialized agents work behind the scenes.
-
-User Experience:
-
-Previous Research
-       ↓
-Select Investigation
-       ↓
-Open Conversation
-       ↓
-Continue Research
-       ↓
-Upload New Evidence
-       ↓
-Ask Questions
-       ↓
-AI Research Activity
-       ↓
-Evidence
-       ↓
-Sources
-       ↓
-Final Answer / Report
-
-During research, the interface can display activity such as:
-
+```
 ✦ LUMINAR AI
+  ├── 🧭 Formulating PICO research parameters...
+  ├── 📚 Querying Crossref, PubMed, and arXiv (48 sources found)...
+  ├── 📑 Deduplicating & ranking 14 high-relevance papers...
+  ├── 🛡️ Extracting and verifying claims against source spans...
+  ├── ⚖️ Adversarial Critic: Checking for sample size bias...
+  └── 📝 Synthesizing auditable report with verified citations...
+
+```
+
+---
+
+## 🏗️ 21. System Architecture
+
+```
+                                  USER WORKSPACE
+                                        │
+                                        ▼
+                         ┌─────────────────────────────┐
+                         │   Luminar AI Workspace UI   │
+                         │ (Chat, History, Doc Viewer) │
+                         └──────────────┬──────────────┘
+                                        │
+                                        ▼
+                         ┌─────────────────────────────┐
+                         │ Research Orchestration Core │
+                         └──────────────┬──────────────┘
+                                        │
+         ┌──────────────────────────────┼──────────────────────────────┐
+         ▼                              ▼                              ▼
+  ┌──────────────┐              ┌──────────────┐              ┌────────────────┐
+  │   Planner    │ ───────────▶ │  Literature  │ ───────────▶ │    Evidence    │
+  │    Agent     │              │  Researcher  │              │   Extractor    │
+  └──────────────┘              └──────────────┘              └───────┬────────┘
+                                                                      │
+                                                                      ▼
+  ┌──────────────┐              ┌──────────────┐              ┌────────────────┐
+  │    Report    │ ◀─────────── │ Adversarial  │ ◀─────────── │    Citation    │
+  │    Writer    │              │    Critic    │              │    Verifier    │
+  └──────┬───────┘              └──────────────┘              └────────────────┘
+         │
+         ▼
+  AUDITABLE REPORT
+
+```
+
+```
+EXTERNAL DATA LAYER         DOCUMENT PROCESSING          PERSISTENCE LAYER
+  • Crossref                  • PDF Parser                 • Research Projects
+  • PubMed / Europe PMC       • DOCX / TXT Reader          • Grounded Claims
+  • Semantic Scholar          • Multimodal Vision          • Source Registry
+  • arXiv / OpenAlex          • Chunking & Embedding       • History & Telemetry
+
+```
+
+---
+
+## 🛠️ 22. Technology Stack
+
+* **Core Orchestration:** Multi-Agent State Machine / Distributed Task Orchestrator
+* **Language Models:** High-throughput open-weight models (Groq inference engine) & Multimodal Vision APIs
+* **Ingestion Layer:** Crossref, Semantic Scholar, PubMed, OpenAlex, arXiv REST APIs
+* **Document Processing:** PDF/DOCX text extractors & Vision tokenizers
+* **Backend Services:** High-concurrency Python API backend
+* **Frontend Workspace:** Modern web-based research dashboard with real-time streaming updates
+* **Persistence:** Relational & vector-indexed research context store
+
+---
+
+## 🔐 23. Security, Privacy & Safety
+
+* **Zero Client-Side Token Leaks:** API keys and external provider tokens are managed strictly on the backend.
+* **Isolated Research Data:** Uploaded manuscripts, clinical records, and project notes are confined to local session workspaces.
+* **Data Upload Hygiene:** Designed to handle open-access and authorized research texts safely; users are advised to avoid uploading unredacted patient-identifiable data or unlicensed material.
+
+---
+
+## 📖 24. End-to-End Walkthrough
+
+```
+1. USER: "Does intermittent fasting improve insulin sensitivity in adults with prediabetes?"
+   │
+2. PLANNER: Formulates PICO query matrix (Intermittent Fasting, HOMA-IR, Prediabetes RCTs).
+   │
+3. LITERATURE AGENT: Fetches 38 papers across PubMed, Crossref, and Semantic Scholar.
+   │
+4. DEDUPLICATION & RANKING: Consolidates to 12 top-tier clinical studies.
+   │
+5. EVIDENCE EXTRACTOR: Mines sample sizes, intervention lengths, and primary endpoints.
+   │
+6. CITATION VERIFIER: Validates claims against primary text passages (10 Supported, 2 Partial).
+   │
+7. ADVERSARIAL CRITIC: Flags that 3 studies had small cohorts (<30) and unmonitored caloric intake.
+   │
+8. REPORT WRITER: Generates structured synthesis with explicit counter-evidence sections.
+   │
+9. USER FOLLOW-UP: "I've uploaded a new 2026 trial PDF. Does this alter your conclusion?"
+   │
+10. LUMINAR: Ingests PDF, compares findings with stored state, and outputs differential analysis.
+
+```
+
+---
 
-Thinking...
-
-Understanding research question...
-Planning research...
-Searching scholarly sources...
-Reviewing evidence...
-Comparing studies...
-Verifying citations...
-Checking conflicting evidence...
-Preparing synthesis...
-Writing report...
-
-These are user-facing progress states and should not expose private
-chain-of-thought.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-21. HIGH-LEVEL SYSTEM ARCHITECTURE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-                         USER
-                           │
-                           ▼
-                 ┌───────────────────┐
-                 │  LUMINAR AI UI    │
-                 │ Chat / Research   │
-                 │ History / Uploads │
-                 └─────────┬─────────┘
-                           │
-                           ▼
-                 ┌───────────────────┐
-                 │ Research          │
-                 │ Orchestration     │
-                 └─────────┬─────────┘
-                           │
-          ┌────────────────┼─────────────────┐
-          │                │                 │
-          ▼                ▼                 ▼
-     ┌─────────┐     ┌─────────────┐   ┌────────────┐
-     │ Planner │────▶│ Literature  │──▶│ Evidence   │
-     │ Agent   │     │ Researcher  │   │ Extractor  │
-     └─────────┘     └─────────────┘   └─────┬──────┘
-                                             │
-                                             ▼
-                                      ┌─────────────┐
-                                      │ Citation    │
-                                      │ Verifier    │
-                                      └──────┬──────┘
-                                             │
-                                             ▼
-                                      ┌─────────────┐
-                                      │ Adversarial │
-                                      │ Critic      │
-                                      └──────┬──────┘
-                                             │
-                                             ▼
-                                      ┌─────────────┐
-                                      │ Report      │
-                                      │ Writer      │
-                                      └──────┬──────┘
-                                             │
-                                             ▼
-                                      FINAL REPORT
-
-
-EXTERNAL RESEARCH LAYER:
-
-Crossref
-Semantic Scholar
-PubMed
-arXiv
-OpenAlex
-Europe PMC
-IEEE Xplore*
-ACM Metadata*
-DOI / Paper URLs
-       │
-       ▼
-Literature Research Agent
-
-
-DOCUMENT LAYER:
-
-PDF
-DOCX
-TXT
-Images
-       │
-       ▼
-Document / Vision Processing
-       │
-       ▼
-Research Context
-
-
-PERSISTENCE LAYER:
-
-Research Projects
-Conversations
-Sources
-Evidence
-Files
-Findings
-Citations
-Research History
-Cost / Activity
+## 🎯 25. Feature-to-Problem Mapping
 
+| Feature Component | Problem Solved |
+| --- | --- |
+| **Multi-Agent Decomposition** | Prevents monolithic LLM failure modes and context exhaustion. |
+| **Research Planner Agent** | Eliminates unstructured, narrow search queries. |
+| **Multi-Source Aggregation** | Solves fragmented searches across closed platforms. |
+| **Automated Deduplication** | Removes duplicate DOI entries and overlapping preprints. |
+| **Citation Verification Agent** | Stops hallucinated citations and unsupported assertions. |
+| **Adversarial Critic** | Prevents confirmation bias and artificial consensus. |
+| **Persistent Research State** | Eliminates context loss between research sessions. |
+| **Multimodal Vision Engine** | Enables direct ingestion of scientific charts and figures. |
+| **Live Cost Tracking** | Provides transparency over token and API usage. |
+| **Circuit-Breaker Retries** | Prevents single-provider downtime from halting workflows. |
 
-* Availability depends on configured API access.
+---
 
+## 🔄 26. Paradigm Comparison
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-22. TECHNOLOGY / COMPONENTS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+Traditional AI Chatbot:
+User Query ──▶ LLM Synthesis ──▶ Output (Prone to Hallucinations & Bias)
 
-AI / LLM:
-• LLM-based research agents
-• Groq where configured
-• Vision-capable AI where configured
+Luminar AI Pipeline:
+User Query ──▶ Plan ──▶ Search ──▶ Normalize ──▶ Deduplicate ──▶ Rank
+                 │
+                 └──▶ Extract ──▶ Verify ──▶ Compare ──▶ Challenge
+                        │
+                        └──▶ Synthesize ──▶ Cite ──▶ Audit ──▶ Preserve
 
-AGENT ORCHESTRATION:
-• Multi-agent architecture
-• LangChain where implemented/configured
-• Structured agent-to-agent research state
+```
 
-RESEARCH:
-• Scholarly search APIs
-• Metadata providers
-• Source normalization
-• Duplicate detection
-• Relevance ranking
+---
 
-DOCUMENTS:
-• PDF processing
-• DOCX processing
-• TXT processing
-• Image understanding
+## ✨ 27. Core Demo Highlights
 
-BACKEND:
-• API-based research services
-• Research orchestration
-• File processing
-• Persistent research data
+1. 🤖 **6-Agent Orchestration:** Coordinated state sharing from planning to synthesis.
+2. 🌐 **Multi-Source Aggregation:** Simultaneous discovery across PubMed, Crossref, arXiv, and more.
+3. 🛡️ **Source-Span Citation Verification:** Status tags (Supported, Unsupported, Contradicted).
+4. ⚖️ **Adversarial Critique Engine:** Proactive discovery of small-cohort bias and confounders.
+5. 📊 **Contradiction Detection:** Explicit handling of mixed scientific evidence.
+6. 💾 **Long-Term Session Memory:** Persistent context that spans multiple research sessions.
+7. 📄 **Document & Vision Intelligence:** Upload PDFs, DOCX files, and scientific charts.
+8. 🔗 **Real Source Grounding:** Direct links to verified DOIs and repositories.
+9. 📉 **Audit & Cost Telemetry:** Real-time token, cost, and progress tracking.
 
-FRONTEND:
-• Modern web research workspace
-• Research chat
-• Research history
-• File upload
-• Source display
-• Agent activity states
+---
 
-DATABASE / PERSISTENCE:
-• Research projects
-• Conversations
-• Sources
-• Evidence
-• Uploaded documents
-• Research history
+## 🚀 28. Expected Impact
 
-IMPORTANT:
-Only list specific frameworks/models such as LangGraph, CrewAI, AutoGen,
-Llama, or DeepSeek if they are actually present in the final code.
+Luminar AI serves as an intelligent research co-pilot, automating repetitive discovery, verification, and extraction tasks while leaving researchers in full control of analysis and conclusions:
 
+* **Saves Literature Review Time:** Automates search, deduplication, and initial extraction.
+* **Improves Research Integrity:** Flags ungrounded claims and verifies citations against source text.
+* **Reveals Methodological Gaps:** Discovers conflicting evidence that monolithic models miss.
+* **Maintains Persistent Context:** Keeps an auditable trail across ongoing research projects.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-23. SECURITY & SAFETY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-The application should protect:
+## 💻 Quickstart Guide
 
-• API keys
-• Provider credentials
-• User research
-• Uploaded documents
-• Personal information
+### Prerequisites
 
-API keys must remain on the backend and must not be exposed in frontend
-source code.
+* Python 3.10+
+* Node.js 18+
+* API credentials for configured LLM/Inference engines
 
-Users should avoid uploading confidential, patient-identifiable, unpublished,
-or license-restricted material unless they have the appropriate authorization
-and the infrastructure allows it.
+### Installation
 
+1. **Clone the Repository:**
+```bash
+git clone [https://github.com/charanbalaji2005/Luminar-AI.git](https://github.com/charanbalaji2005/Luminar-AI.git)
+cd Luminar-AI
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-24. EXAMPLE END-TO-END RESEARCH
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
 
-USER:
-“Does intermittent fasting improve insulin sensitivity in adults with
-prediabetes?”
 
-        ↓
+2. **Environment Configuration:**
+```bash
+cp .env.example .env
+# Populate your model keys and API access endpoints in .env
 
-PLANNER:
-Creates research strategy.
+```
 
-        ↓
 
-LITERATURE RESEARCHER:
-Searches academic sources.
+3. **Backend Setup:**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 
-        ↓
+```
 
-DEDUPLICATION:
-Removes duplicate papers.
 
-        ↓
+4. **Frontend Setup:**
+```bash
+cd frontend
+npm install
 
-RANKING:
-Selects relevant research.
+```
 
-        ↓
 
-EVIDENCE EXTRACTOR:
-Extracts methods, findings, claims, outcomes and limitations.
+5. **Run the Application:**
+```bash
+# Terminal 1 - Backend Server
+python -m src.main
 
-        ↓
+# Terminal 2 - Frontend UI
+cd frontend && npm run dev
 
-CITATION VERIFIER:
-Checks claims against sources.
+```
 
-        ↓
 
-ADVERSARIAL CRITIC:
-Searches for conflicting studies and weaknesses.
 
-        ↓
+---
 
-REPORT WRITER:
-Creates evidence-grounded report.
-
-        ↓
-
-USER:
-“Which study provides the strongest evidence?”
-
-        ↓
-
-LUMINAR:
-Uses existing research context.
-
-        ↓
-
-USER:
-“I uploaded a new clinical trial. Compare it with my research.”
-
-        ↓
-
-LUMINAR:
-Combines previous research + new evidence.
-
-        ↓
-
-USER:
-“Does this new study change the conclusion?”
-
-        ↓
-
-LUMINAR:
-Provides an updated evidence-grounded analysis.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-25. WHAT PROBLEM DOES EACH FEATURE SOLVE?
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Multiple agents
-→ Solves the problem of making one AI responsible for the entire workflow.
-
-Research planner
-→ Solves poorly defined research searches.
-
-Multi-source search
-→ Solves fragmented literature discovery.
-
-Duplicate detection
-→ Solves repeated paper results.
-
-Relevance ranking
-→ Solves information overload.
-
-Evidence extraction
-→ Solves manual reading and extraction work.
-
-Citation verification
-→ Solves citation mismatch and unsupported claims.
-
-Adversarial critic
-→ Solves one-sided AI conclusions.
-
-Contradiction detection
-→ Solves conflicting research being hidden.
-
-Persistent memory
-→ Solves loss of research context.
-
-Document upload
-→ Allows researchers to bring their own evidence.
-
-Image understanding
-→ Allows analysis of research figures and charts.
-
-Source links
-→ Allows researchers to inspect the original evidence.
-
-Audit trail
-→ Makes the research process more traceable.
-
-Cost tracking
-→ Helps evaluate practical AI research costs.
-
-Fault tolerance
-→ Prevents one failed provider from stopping the entire workflow.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-26. WHAT MAKES LUMINAR AI DIFFERENT?
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-NORMAL AI CHATBOT:
-
-Question
-  ↓
-LLM
-  ↓
-Answer
-
-
-LUMINAR AI:
-
-Question
-  ↓
-Understand
-  ↓
-Plan
-  ↓
-Search
-  ↓
-Normalize
-  ↓
-Deduplicate
-  ↓
-Rank
-  ↓
-Extract
-  ↓
-Verify
-  ↓
-Compare
-  ↓
-Challenge
-  ↓
-Identify Gaps
-  ↓
-Synthesize
-  ↓
-Cite
-  ↓
-Audit
-  ↓
-Remember
-  ↓
-Continue Research
-
-
-Luminar AI is designed as a research environment, not simply a question-
-answering chatbot.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-27. MAIN FEATURES TO HIGHLIGHT IN A DEMO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔥 1. Six-agent collaboration
-
-🔥 2. Multi-source academic research
-
-🔥 3. Citation verification
-
-🔥 4. Adversarial research critic
-
-🔥 5. Contradiction detection
-
-🔥 6. Persistent research memory
-
-🔥 7. Upload a paper and continue existing research
-
-🔥 8. PDF/document understanding
-
-🔥 9. Scientific image understanding when configured
-
-🔥 10. Real source links
-
-🔥 11. Auditable research workflow
-
-🔥 12. Research report generation
-
-🔥 13. Cost tracking
-
-🔥 14. Duplicate detection
-
-🔥 15. Relevance ranking
-
-🔥 16. Fault-tolerant research providers
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-28. EXPECTED IMPACT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Luminar AI aims to reduce repetitive research work and improve evidence
-traceability.
-
-It can help researchers:
-
-• Discover literature faster
-• Organize research evidence
-• Compare conflicting findings
-• Verify citations
-• Identify unsupported claims
-• Analyze uploaded papers
-• Analyze research figures
-• Identify research gaps
-• Maintain long-running investigations
-• Generate research reports
-• Reduce repetitive literature-review work
-• Make AI-assisted research more auditable
-
-The purpose is not to replace researchers.
-
-Luminar AI acts as an intelligent research co-pilot that handles repetitive
-discovery, extraction, verification, and synthesis tasks while keeping
-evidence and sources visible.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-29. ONE-LINE PROJECT DESCRIPTION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Luminar AI is an autonomous multi-agent research platform that searches
-scholarly literature, extracts and verifies evidence, challenges research
-conclusions, and maintains persistent research context to produce auditable,
-evidence-grounded research reports.
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-30. SHORT PROJECT PITCH
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-“Luminar AI is an AI-powered research team. One agent plans the research,
-another finds academic papers, another extracts evidence, another verifies
-citations, another challenges the findings, and another creates the final
-report. Researchers can upload new papers, compare them with previous
-research, and continue investigations without starting from scratch. Instead
-of simply generating an answer, Luminar AI searches, verifies, challenges,
-and preserves the research process.”
-
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-31. CORE VALUE PROPOSITION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-Luminar AI does not just answer:
-
-“What does the AI think?”
-
-It is designed to answer:
-
-“What does the available evidence show?”
-
-“What sources support that conclusion?”
-
-“What evidence disagrees?”
-
-“What limitations exist?”
-
-“What changed after new evidence was added?”
-
-“What research still needs to be done?”
-
-That is the core idea behind Luminar AI.
-
-PLAN → SEARCH → EXTRACT → VERIFY → CRITIQUE → SYNTHESIZE → CITE → AUDIT → CONTINUE
+**Luminar AI** — *Autonomous, evidence-grounded research intelligence.*
